@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<JavaBean xmlns="http://xmlns.oracle.com/adfm/beanmodel" version="11.1.1.60.13"
+          id="Status" Package="src.model" BeanClass="src.model.Status"
+          isJavaBased="true"></JavaBean>

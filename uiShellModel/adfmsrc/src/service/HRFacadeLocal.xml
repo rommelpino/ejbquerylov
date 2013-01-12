@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<JavaBean xmlns="http://xmlns.oracle.com/adfm/beanmodel" version="11.1.1.55.36"
+          id="HRFacadeLocal" Package="src.service"
+          BeanClass="src.service.HRFacadeLocal" isJavaBased="true">
+  <MethodAccessor IsCollection="false" Type="void" id="removeJob"
+                  ReturnNodeName="Return">
+    <ParameterInfo id="job" Type="src.model.Job" isStructured="true"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="true" Type="src.model.Job"
+                  BeanClass="src.model.Job" id="findAllJobs"
+                  ReturnNodeName="Job"
+                  CollectionBeanClass="UpdateableCollection"/>
+  <MethodAccessor IsCollection="false" Type="src.model.Job"
+                  BeanClass="src.model.Job" id="findJobById"
+                  ReturnNodeName="Job">
+    <ParameterInfo id="jobId" Type="java.lang.String" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="src.model.Job"
+                  BeanClass="src.model.Job" id="persistJob"
+                  ReturnNodeName="Job">
+    <ParameterInfo id="job" Type="src.model.Job" isStructured="true"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="src.model.Job"
+                  BeanClass="src.model.Job" id="mergeJob" ReturnNodeName="Job">
+    <ParameterInfo id="job" Type="src.model.Job" isStructured="true"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="true" Type="src.model.Employee"
+                  BeanClass="src.model.Employee" id="findEmployeesByCriteria"
+                  ReturnNodeName="Employee"
+                  CollectionBeanClass="UpdateableCollection">
+    <ParameterInfo id="jpqlStmt" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="firstResult" Type="int" isStructured="false"/>
+    <ParameterInfo id="maxResults" Type="int" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="src.model.Employee"
+                  BeanClass="src.model.Employee" id="findEmployeeById"
+                  ReturnNodeName="Employee">
+    <ParameterInfo id="employeeId" Type="java.lang.Long" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="src.model.Employee"
+                  BeanClass="src.model.Employee" id="mergeEmployee"
+                  ReturnNodeName="Employee">
+    <ParameterInfo id="employee" Type="src.model.Employee" isStructured="true"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="true" Type="src.model.Job"
+                  BeanClass="src.model.Job" id="findJobsByCriteria"
+                  ReturnNodeName="Job"
+                  CollectionBeanClass="UpdateableCollection">
+    <ParameterInfo id="jpqlStmt" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="firstResult" Type="int" isStructured="false"/>
+    <ParameterInfo id="maxResults" Type="int" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="true" Type="src.model.Department"
+                  BeanClass="src.model.Department"
+                  id="findDepartmentsByCriteria" ReturnNodeName="Department"
+                  CollectionBeanClass="UpdateableCollection">
+    <ParameterInfo id="jpqlStmt" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="firstResult" Type="int" isStructured="false"/>
+    <ParameterInfo id="maxResults" Type="int" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="java.lang.Object" id="findById"
+                  ReturnNodeName="Return">
+    <ParameterInfo id="clazz" Type="java.lang.Class" isStructured="false"/>
+    <ParameterInfo id="id" Type="java.lang.Object" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="true" Type="src.model.Employee"
+                  BeanClass="src.model.Employee" id="findEmployeesByCriteria"
+                  ReturnNodeName="Employee"
+                  CollectionBeanClass="UpdateableCollection">
+    <ParameterInfo id="jpqlStmt" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="hints" Type="java.util.List" isStructured="false"/>
+    <ParameterInfo id="firstResult" Type="int" isStructured="false"/>
+    <ParameterInfo id="maxResults" Type="int" isStructured="false"/>
+  </MethodAccessor>
+  <MethodAccessor IsCollection="false" Type="java.lang.Long" id="getResultCount"
+                  ReturnNodeName="Return">
+    <ParameterInfo id="jpqlStmt" Type="java.lang.String" isStructured="false"/>
+  </MethodAccessor>
+</JavaBean>

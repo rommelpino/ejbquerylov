@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<adfc-config xmlns="http://xmlns.oracle.com/adf/controller" version="1.2">
+  <task-flow-definition id="job-list-task-flow">
+    <default-activity id="__1">job_list</default-activity>
+    <input-parameter-definition id="__2">
+      <name id="__3">tabContext</name>
+      <value>#{pageFlowScope.tabContext}</value>
+      <class>oracle.ui.pattern.dynamicShell.TabContext</class>
+      <required/>
+    </input-parameter-definition>
+    <managed-bean id="__4">
+      <managed-bean-name id="__6">jobListForm</managed-bean-name>
+      <managed-bean-class id="__7">src.view.backing.JobListForm</managed-bean-class>
+      <managed-bean-scope id="__5">backingBean</managed-bean-scope>
+    </managed-bean>
+    <view id="job_list">
+      <page>/job_list.jsff</page>
+    </view>
+    <use-page-fragments/>
+  </task-flow-definition>
+</adfc-config>

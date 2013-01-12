@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pageDefinition xmlns="http://xmlns.oracle.com/adfm/uimodel"
+                version="11.1.1.54.97" id="FirstPageDef"
+                Package="src.view.pageDefs">
+  <parameters/>
+  <executables>
+    <variableIterator id="variables"/>
+    <page path="oracle.ui.pattern.dynamicShell.model.dynamicTabShellDefinition"
+          id="pageTemplateBinding" Refresh="ifNeeded"/>
+    <taskFlow id="welcome1" taskFlowId="/WEB-INF/flows/welcome.xml#welcome"
+              activation="deferred"
+              xmlns="http://xmlns.oracle.com/adf/controller/binding"/>
+  </executables>
+  <bindings>
+    <methodAction id="getResultCount" InstanceName="HRFacadeLocal.dataProvider"
+                  DataControl="HRFacadeLocal" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="getResultCount"
+                  IsViewObjectMethod="false"
+                  ReturnName="data.HRFacadeLocal.methodResults.getResultCount_HRFacadeLocal_dataProvider_getResultCount_result">
+      <NamedData NDName="jpqlStmt" NDType="java.lang.String"/>
+    </methodAction>
+  </bindings>
+  
+</pageDefinition>

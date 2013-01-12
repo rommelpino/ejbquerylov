@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich"
+          xmlns:f="http://java.sun.com/jsf/core" xmlns:sc="/soadevComponentLib">
+          
+   <af:panelHeader text="#{pageFlowScope.editMode? 'Edit ':'View '}Employee: #{bindings.employeeId}" id="ph2"
+                  size="-1"
+                  partialTriggers="ctb1 ctb2">
+    <f:facet name="context"/>
+    <f:facet name="menuBar"/>
+    <f:facet name="toolbar">
+      <af:toolbar id="t1">
+        <af:commandToolbarButton text="Edit" id="ctb1"
+                                 actionListener="#{backingBeanScope.employeeDetailsForm.edit}"
+                                 rendered="#{not pageFlowScope.editMode and securityContext.userInRole['app_admin, job_editor']}"
+                                 icon="/images/edit_ena.png"/>
+        <af:commandToolbarButton text="Done" id="ctb4"
+                                 actionListener="#{backingBeanScope.jemployeeDetailsForm.cancel}"
+                                 rendered="#{not pageFlowScope.editMode}"
+                                 icon="/images/taskcompleted_ena.png"/>
+        <af:commandToolbarButton text="Save and Close" id="ctb2"
+                                 rendered="#{pageFlowScope.editMode}"
+                                 icon="/images/save_ena.png"
+                                 disabledIcon="/images/save_dis.png"
+                                 actionListener="#{backingBeanScope.employeeDetailsForm.saveAndClose}"/>
+        <af:commandToolbarButton text="Cancel" id="ctb3"
+                                 actionListener="#{backingBeanScope.employeeDetailsForm.cancel}"
+                                 immediate="true"
+                                 rendered="#{pageFlowScope.editMode}"
+                                 icon="/images/cancel_ena.png"
+                                 disabledIcon="/images/cancel_dis.png"/>
+      </af:toolbar>
+    </f:facet>
+    <f:facet name="legend"/>
+    <f:facet name="info"/>
+    <af:panelHeader text="Basic Information" id="ph1" size="1">
+      <f:facet name="context"/>
+      <f:facet name="menuBar"/>
+      <f:facet name="toolbar"/>
+      <f:facet name="legend"/>
+      <f:facet name="info"/>
+      <af:panelFormLayout id="pfl1" rows="5" fieldWidth="50px"
+                          labelWidth="50px">
+        <af:inputText value="#{bindings.employeeId.inputValue}"
+                      label="#{bindings.employeeId.hints.label}"
+                      required="#{bindings.employeeId.hints.mandatory}"
+                      columns="#{bindings.employeeId.hints.displayWidth}"
+                      maximumLength="#{bindings.employeeId.hints.precision}"
+                      shortDesc="#{bindings.employeeId.hints.tooltip}" id="it4">
+          <f:validator binding="#{bindings.employeeId.validator}"/>
+          <af:convertNumber groupingUsed="false"
+                            pattern="#{bindings.employeeId.format}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.firstName.inputValue}"
+                      label="#{bindings.firstName.hints.label}"
+                      required="#{bindings.firstName.hints.mandatory}"
+                      columns="#{bindings.firstName.hints.displayWidth}"
+                      maximumLength="#{bindings.firstName.hints.precision}"
+                      shortDesc="#{bindings.firstName.hints.tooltip}" id="it2">
+          <f:validator binding="#{bindings.firstName.validator}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.lastName.inputValue}"
+                      label="#{bindings.lastName.hints.label}"
+                      required="#{bindings.lastName.hints.mandatory}"
+                      columns="#{bindings.lastName.hints.displayWidth}"
+                      maximumLength="#{bindings.lastName.hints.precision}"
+                      shortDesc="#{bindings.lastName.hints.tooltip}" id="it7">
+          <f:validator binding="#{bindings.lastName.validator}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.email.inputValue}"
+                      label="#{bindings.email.hints.label}"
+                      required="#{bindings.email.hints.mandatory}"
+                      columns="#{bindings.email.hints.displayWidth}"
+                      maximumLength="#{bindings.email.hints.precision}"
+                      shortDesc="#{bindings.email.hints.tooltip}" id="it6">
+          <f:validator binding="#{bindings.email.validator}"/>
+        </af:inputText>
+        <af:inputDate value="#{bindings.hireDate.inputValue}"
+                      label="#{bindings.hireDate.hints.label}"
+                      required="#{bindings.hireDate.hints.mandatory}"
+                      shortDesc="#{bindings.hireDate.hints.tooltip}" id="id1">
+          <f:validator binding="#{bindings.hireDate.validator}"/>
+          <af:convertDateTime pattern="#{bindings.hireDate.format}"/>
+        </af:inputDate>
+        <af:inputText value="#{bindings.phoneNumber.inputValue}"
+                      label="#{bindings.phoneNumber.hints.label}"
+                      required="#{bindings.phoneNumber.hints.mandatory}"
+                      columns="#{bindings.phoneNumber.hints.displayWidth}"
+                      maximumLength="#{bindings.phoneNumber.hints.precision}"
+                      shortDesc="#{bindings.phoneNumber.hints.tooltip}"
+                      id="it5">
+          <f:validator binding="#{bindings.phoneNumber.validator}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.salary.inputValue}"
+                      label="#{bindings.salary.hints.label}"
+                      required="#{bindings.salary.hints.mandatory}"
+                      columns="#{bindings.salary.hints.displayWidth}"
+                      maximumLength="#{bindings.salary.hints.precision}"
+                      shortDesc="#{bindings.salary.hints.tooltip}" id="it1">
+          <f:validator binding="#{bindings.salary.validator}"/>
+          <af:convertNumber groupingUsed="false"
+                            pattern="#{bindings.salary.format}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.commissionPct.inputValue}"
+                      label="#{bindings.commissionPct.hints.label}"
+                      required="#{bindings.commissionPct.hints.mandatory}"
+                      columns="#{bindings.commissionPct.hints.displayWidth}"
+                      maximumLength="#{bindings.commissionPct.hints.precision}"
+                      shortDesc="#{bindings.commissionPct.hints.tooltip}"
+                      id="it3">
+          <f:validator binding="#{bindings.commissionPct.validator}"/>
+          <af:convertNumber groupingUsed="false"
+                            pattern="#{bindings.commissionPct.format}"/>
+        </af:inputText>
+            
+        <!-- <af:inputListOfValues label="Department"
+                              popupTitle="Search and Result Dialog" id="ilov3"
+                              model="#{pageFlowScope.departmentQuery.listOfValuesModel}"
+                              value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.department}"
+                              converter="#{pageFlowScope.departmentQuery.dynamicConverter}"
+                              searchDesc="Department Search"/>
+        <af:panelLabelAndMessage label="Manager" id="plam2">
+          <sc:inputListOfValues label="Manager"
+                                popupTitle="Search and Result Dialog" id="ilov1"
+                                searchDesc="Employee Search"
+                                model="#{pageFlowScope.employeeQuery.listOfValuesModel}"
+                                value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.manager}"
+                                converter="#{pageFlowScope.employeeQuery.dynamicConverter}"
+                                paginationModel="#{pageFlowScope.employeeLOVPagination}"
+                                paginationExecute="#{bindings.findEmployeesByCriteria.execute}"
+                                columns="8" simple="true" required="true"/>
+        </af:panelLabelAndMessage>
+        <af:panelLabelAndMessage label="Job" id="plam1">
+          <af:panelGroupLayout id="pgl1" layout="horizontal">
+            <sc:inputListOfValues label="Job"
+                                  popupTitle="Search and Result Dialog"
+                                  id="ilov2"
+                                  model="#{pageFlowScope.jobQuery.listOfValuesModel}"
+                                  searchDesc="Job Search"
+                                  value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.job}"
+                                  converter="#{pageFlowScope.jobQuery.dynamicConverter}"
+                                  autoSubmit="true" simple="true"
+                                  paginationExecute="#{bindings.findJobsByCriteria.execute}"
+                                  paginationModel="#{pageFlowScope.jobLOVPagination}"/>
+            <af:outputText value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.job.jobTitle}" id="ot1"
+                           partialTriggers="ilov2"/>
+          </af:panelGroupLayout>
+        </af:panelLabelAndMessage> -->
+         <af:inputListOfValues label="Job"
+                              popupTitle="Search and Result Dialog" id="ilov2"
+                              model="#{pageFlowScope.jobQuery.param['bindings.Job'].listOfValuesModel}"
+                              searchDesc="Job Search"
+                              value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.job}"
+                              converter="#{pageFlowScope.jobQuery.param['bindings.Job'].convert['jobId']}"
+                              autoSubmit="true"/>
+        <af:inputListOfValues label="Department"
+                              popupTitle="Search and Result Dialog" id="ilov3"
+                              model="#{pageFlowScope.departmentQuery.param['bindings.Department'].listOfValuesModel}"
+                              value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.department}"
+                              converter="#{pageFlowScope.departmentQuery.param['bindings.Department'].convert['departmentId']}"
+                              searchDesc="Department Search"/>
+        <af:inputListOfValues label="Manager"
+                              popupTitle="Search and Result Dialog" id="ilov1"
+                              searchDesc="Employee Search"
+                              model="#{pageFlowScope.employeeQuery.param['bindings.Employee'].listOfValuesModel}"
+                              value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.manager}"
+                              converter="#{pageFlowScope.employeeQuery.param['bindings.Employee'].convert['employeeId']}"/> 
+      </af:panelFormLayout>
+    </af:panelHeader>
+  </af:panelHeader>         
+</jsp:root>

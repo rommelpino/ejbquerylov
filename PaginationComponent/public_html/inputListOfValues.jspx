@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:f="http://java.sun.com/jsf/core"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich"
+          xmlns:sc="/soadevComponentLib"
+          xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+  <jsp:directive.page contentType="text/html;charset=windows-1252"/>
+  <af:componentDef var="attrs" componentVar="component">
+    <af:panelGroupLayout id="dc_pgl1" layout="horizontal" 
+                    rendered="#{attrs.rendered}" 
+                    visible="#{attrs.visible}">
+      <af:inputText id="dc_it1" simple="#{attrs.simple}" label="#{attrs.label}"
+                    value="#{attrs.value}" converter="#{attrs.converter}"
+                    binding="#{component.richInputText}"
+                    autoSubmit="#{attrs.autoSubmit}" columns="#{attrs.columns}"
+                    required="#{attrs.required}" 
+                    readOnly="#{attrs.readOnly}" disabled="#{attrs.disabled}"
+                    autoTab="#{attrs.autoTab}"
+                    maximumLength="#{attrs.maximumLength}"
+                    showRequired="#{attrs.showRequired}"
+                    clientComponent="#{attrs.clientComponent}"
+                    immediate="#{attrs.immediate}"
+                    valueChangeListener="#{component.handleValueChangeListener}">
+        <af:clientAttribute name="soadev" value="lov"/>
+      </af:inputText>
+      <af:image source="/images/soadev/lov_ena.png" id="dc_i1"
+                rendered="#{not attrs.readOnly and not attrs.disabled}">
+        <af:showPopupBehavior popupId="dc_p1" triggerType="click" />
+      </af:image>
+      <af:image source="/images/soadev/lov_dis.png" id="dc_i2"
+                rendered="#{not attrs.readOnly and attrs.disabled}"/>
+      <af:popup id="dc_p1" binding="#{component.richPopup}">
+        <af:dialog id="dc_d1" title="#{attrs.popupTitle}"
+                   dialogListener="#{component.handleDialogReturn}"
+                   contentWidth="500" contentHeight="400" resize="on"
+                   stretchChildren="first">
+          <af:panelStretchLayout id="dc_psl1" topHeight="auto"
+                                 bottomHeight="20px">
+            <f:facet name="center">
+              <af:panelCollection id="dc_pc1"
+                                  featuresOff="statusBar detachMenuItem  detachToolbarItem  ">
+                <af:table var="row" rowBandingInterval="0" id="dc_t1"
+                          value="#{attrs.model.tableModel.collectionModel}"
+                          rowSelection="single" varStatus="vs"
+                          binding="#{component.richTable}"
+                          clientComponent="true" partialTriggers=":::p1">
+                  <af:clientListener method="handleTableDoubleClick"
+                                     type="dblClick"/>
+                   
+                  <af:serverListener type="TableDoubleClickEvent"
+                                     method="#{component.handleTableDoubleClick}"/>
+                  <af:column id="dc_c1" headerText="Row" width="25"
+                             rendered="#{attrs.paginationModel ne null}">
+                    <af:outputText value="#{vs.index + attrs.paginationModel.firstResult + 1}"
+                                   id="dc_ot2"/>
+                  </af:column>
+                  <af:forEach items="#{attrs.model.tableModel.columnDescriptors}"
+                              var="def">
+                    <af:switcher facetName="#{fn:length(fn:split(def.name,'.'))}"
+                                 id="dc_s1">
+                      <f:facet name="1">
+                        <af:column headerText="#{def.label}" sortable="true"
+                                   sortProperty="#{def.name}" id="c1" width="80"
+                                   minimumWidth="12">
+                          <af:outputText value="#{row[def.name]}" id="ot3"/>
+                        </af:column>
+                      </f:facet>
+                      <f:facet name="2">
+                        <af:column headerText="#{def.label}" sortable="true"
+                                   id="dc_c2" width="80" minimumWidth="12">
+                          <af:outputText value="#{row[fn:split(def.name,'.')[0]][fn:split(def.name,'.')[1]]}"
+                                         id="dc_ot1"/>
+                        </af:column>
+                      </f:facet>
+                    </af:switcher>
+                  </af:forEach>
+                </af:table>
+              </af:panelCollection>
+            </f:facet>
+            <f:facet name="top">
+                <af:panelBorderLayout id="dc_pbl1">
+                  <f:facet name="start"/>
+                  <f:facet name="bottom">
+                  <af:spacer width="5" height="5" id="dc_s2"
+                             rendered="#{requestContext.agent.agentName eq 'ie'}"/>
+                </f:facet>
+                  <f:facet name="end">
+                  <af:spacer width="5" height="5" id="dc_s3"
+                             rendered="#{requestContext.agent.agentName eq 'ie'}"/>
+                </f:facet>
+                  <f:facet name="top"/>
+                  <af:query headerText="Search" disclosed="true" id="dc_q1"
+                            model="#{attrs.model.queryModel}"
+                            value="#{attrs.model.queryDescriptor}"
+                            queryListener="#{component.processQuery}"
+                            resultComponentId="::dc_pc1:dc_t1"
+                            saveQueryMode="hidden"/>
+                </af:panelBorderLayout>
+            </f:facet>
+            <f:facet name="bottom">
+              <af:panelGroupLayout id="dc_pgl2" partialTriggers="dc_q1"
+                                   halign="end" layout="vertical"
+                                   rendered="#{attrs.paginationModel ne null}">
+                <sc:pagination id="p1" model="#{attrs.paginationModel}"
+                               execute="#{component.handlePaginationExecute}"/>
+              </af:panelGroupLayout>
+            </f:facet>
+          </af:panelStretchLayout>
+        </af:dialog>
+      </af:popup>
+    </af:panelGroupLayout>
+    <af:resource type="javascript">
+      function handleTableDoubleClick(evt) {
+          var table = evt.getSource();
+          AdfCustomEvent.queue(table, "TableDoubleClickEvent", 
+          {
+          },
+true);
+//          evt.cancel();
+      }
+    </af:resource>
+    <af:xmlContent>
+      <component xmlns="http://xmlns.oracle.com/adf/faces/rich/component">
+        <display-name>inputListOfValues</display-name>
+        <component-class>soadev.component.InputListOfValues</component-class>
+        <attribute>
+          <attribute-name>label</attribute-name>
+          <attribute-class>java.lang.String</attribute-class>
+          <default-value>Seach</default-value>
+        </attribute>
+        <attribute>
+          <attribute-name>popupTitle</attribute-name>
+          <attribute-class>java.lang.String</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>searchDesc</attribute-name>
+          <attribute-class>java.lang.String</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>model</attribute-name>
+          <attribute-class>oracle.adf.view.rich.model.ListOfValuesModel</attribute-class>
+          <required>true</required>
+        </attribute>
+        <attribute>
+          <attribute-name>value</attribute-name>
+          <attribute-class>java.lang.Object</attribute-class>
+          <required>true</required>
+        </attribute>
+        <attribute>
+          <attribute-name>converter</attribute-name>
+          <attribute-class>java.lang.String</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>autoSubmit</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>simple</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>columns</attribute-name>
+          <attribute-class>java.lang.Integer</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>required</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>rendered</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+          <default-value>true</default-value>
+        </attribute>
+        <attribute>
+          <attribute-name>visible</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+          <default-value>true</default-value>
+        </attribute>
+        <attribute>
+          <attribute-name>showRequired</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>clientComponent</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>readOnly</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>disabled</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>immediate</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>autoTab</attribute-name>
+          <attribute-class>java.lang.Boolean</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>maximumLength</attribute-name>
+          <attribute-class>java.lang.Integer</attribute-class>
+        </attribute>
+        <attribute>
+          <attribute-name>paginationModel</attribute-name>
+          <attribute-class>soadev.component.model.PaginationModel</attribute-class>
+        </attribute>
+        <component-extension>
+          <component-tag-namespace>soadev.component</component-tag-namespace>
+          <component-taglib-uri>/soadevComponentLib</component-taglib-uri>
+          <method-attribute>
+            <attribute-name>paginationExecute</attribute-name>
+            <method-signature>void method(javax.faces.event.ActionEvent)</method-signature>
+          </method-attribute>
+          <method-attribute>
+            <attribute-name>valueChangeListener</attribute-name>
+            <method-signature>void method(javax.faces.event.ValueChangeEvent)</method-signature>
+          </method-attribute>
+        </component-extension>
+      </component>
+    </af:xmlContent>
+  </af:componentDef>
+</jsp:root>

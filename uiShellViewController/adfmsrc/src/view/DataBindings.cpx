@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://xmlns.oracle.com/adfm/application"
+             version="11.1.1.54.97" id="DataBindings" SeparateXMLFiles="false"
+             Package="src.view" ClientType="Generic">
+  <definitionFactories>
+    <factory nameSpace="http://xmlns.oracle.com/adf/controller/binding"
+             className="oracle.adf.controller.internal.binding.TaskFlowBindingDefFactoryImpl"/>
+    <dtfactory className="oracle.adf.controller.internal.dtrt.binding.BindingDTObjectFactory"/>
+  </definitionFactories>
+  <pageMap>
+    <page path="/First.jspx" usageId="src_view_FirstPageDef"/>
+    <page path="/job_list.jsff" usageId="src_view_job_listPageDef"/>
+    <page path="/job_details.jsff" usageId="src_view_job_detailsPageDef"/>
+    <page path="/WEB-INF/flows/job-details-task-flow.xml#job-details-task-flow@initialize"
+          usageId="src_view_job_details_task_flow_job_details_task_flow_initializePageDef"/>
+    <page path="/fragments/employee_list.jsff"
+          usageId="src_view_employee_listPageDef"/>
+    <page path="/fragments/employee_details.jsff"
+          usageId="src_view_employee_detailsPageDef"/>
+    <page path="/Second.jspx" usageId="src_view_SecondPageDef"/>
+  </pageMap>
+  <pageDefinitionUsages>
+    <page id="src_view_FirstPageDef" path="src.view.pageDefs.FirstPageDef"/>
+    <page id="src_view_job_listPageDef"
+          path="src.view.pageDefs.job_listPageDef"/>
+    <page id="src_view_job_detailsPageDef"
+          path="src.view.pageDefs.job_detailsPageDef"/>
+    <page id="src_view_job_details_task_flow_job_details_task_flow_initializePageDef"
+          path="flows.job_details_task_flow_job_details_task_flow_initializePageDef"/>
+    <page id="src_view_employee_listPageDef"
+          path="fragments.employee_listPageDef"/>
+    <page id="src_view_employee_detailsPageDef"
+          path="fragments.employee_detailsPageDef"/>
+    <page id="src_view_SecondPageDef" path="src.view.pageDefs.SecondPageDef"/>
+  </pageDefinitionUsages>
+  <dataControlUsages>
+    <dc id="HRFacadeLocal" path="src.model.HRFacadeLocal"/>
+  </dataControlUsages>
+</Application>

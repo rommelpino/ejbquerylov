@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pageDefinition xmlns="http://xmlns.oracle.com/adfm/uimodel"
+                version="11.1.1.56.60" id="employee_detailsPageDef"
+                Package="fragments">
+  <parameters/>
+  <executables>
+    <variableIterator id="variables"/>
+    <methodIterator Binds="findEmployeeById.result" DataControl="HRFacadeLocal"
+                    RangeSize="25" BeanClass="src.model.Employee"
+                    id="findEmployeeByIdIterator"/>
+    <methodIterator Binds="findEmployeesByCriteria.result"
+                    DataControl="HRFacadeLocal" RangeSize="10"
+                    BeanClass="src.model.Employee"
+                    id="findEmployeesByCriteriaIter"/>
+    <methodIterator id="findJobsByCriteriaIterator"
+                    Binds="findJobsByCriteria.result"
+                    DataControl="HRFacadeLocal" RangeSize="25"
+                    BeanClass="src.model.Job"/>
+    <methodIterator Binds="findDepartmentsByCriteria.result"
+                    DataControl="HRFacadeLocal" RangeSize="10"
+                    BeanClass="src.model.Department"
+                    id="findDepartmentsByCriteriaIterator"/>
+  </executables>
+  <bindings>
+    <methodAction id="findEmployeeById" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findEmployeeById"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.findEmployeeById_HRFacadeLocal_dataProvider_findEmployeeById_result">
+      <NamedData NDName="employeeId" NDValue="#{pageFlowScope.employeeId}"
+                 NDType="java.lang.Long"/>
+    </methodAction>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="employeeId">
+      <AttrNames>
+        <Item Value="employeeId"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="firstName">
+      <AttrNames>
+        <Item Value="firstName"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="lastName">
+      <AttrNames>
+        <Item Value="lastName"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="email">
+      <AttrNames>
+        <Item Value="email"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="hireDate">
+      <AttrNames>
+        <Item Value="hireDate"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="phoneNumber">
+      <AttrNames>
+        <Item Value="phoneNumber"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="salary">
+      <AttrNames>
+        <Item Value="salary"/>
+      </AttrNames>
+    </attributeValues>
+    <attributeValues IterBinding="findEmployeeByIdIterator" id="commissionPct">
+      <AttrNames>
+        <Item Value="commissionPct"/>
+      </AttrNames>
+    </attributeValues>
+    <methodAction id="findEmployeesByCriteria" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findEmployeesByCriteria"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.findEmployeesByCriteria_HRFacadeLocal_dataProvider_findEmployeesByCriteria_result">
+      <NamedData NDName="jpqlStmt" NDValue="#{pageFlowScope.employeeQuery.jpql}"
+                 NDType="java.lang.String"/>
+      <NamedData NDName="firstResult"
+                 NDValue="#{pageFlowScope.employeeLOVPagination.firstResult}"
+                 NDType="int"/>
+      <NamedData NDName="maxResults"
+                 NDValue="#{pageFlowScope.employeeLOVPagination.maxResults}"
+                 NDType="int"/>
+    </methodAction>
+    <tree IterBinding="findEmployeesByCriteriaIter" id="Employee">
+      <nodeDefinition DefName="src.model.Employee" Name="result0">
+        <AttrNames>
+          <Item Value="employeeId"/>
+          <Item Value="firstName"/>
+          <Item Value="lastName"/>
+          <Item Value="email"/>
+          <Item Value="hireDate"/>
+          <Item Value="phoneNumber"/>
+          <Item Value="salary"/>
+          <Item Value="commissionPct"/>
+        </AttrNames>
+        <Accessors>
+          <Item Value="job"/>
+        </Accessors>
+      </nodeDefinition>
+      <nodeDefinition DefName="src.model.Job" Name="Employee1">
+        <AttrNames>
+          <Item Value="jobId"/>
+          <Item Value="jobTitle"/>
+        </AttrNames>
+      </nodeDefinition>
+    </tree>
+    <methodAction id="findJobsByCriteria"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  DataControl="HRFacadeLocal" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findJobsByCriteria"
+                  IsViewObjectMethod="false"
+                  ReturnName="HRFacadeLocal.methodResults.findJobsByCriteria_HRFacadeLocal_dataProvider_findJobsByCriteria_result">
+      <NamedData NDName="jpqlStmt" NDValue="#{pageFlowScope.jobQuery.jpql}"
+                 NDType="java.lang.String"/>
+      <NamedData NDName="firstResult"
+                 NDValue="#{pageFlowScope.jobLOVPagination.firstResult}"
+                 NDType="int"/>
+      <NamedData NDName="maxResults"
+                 NDValue="#{pageFlowScope.jobLOVPagination.maxResults}"
+                 NDType="int"/>
+    </methodAction>
+    <tree IterBinding="findJobsByCriteriaIterator" id="Job">
+      <nodeDefinition DefName="src.model.Job" Name="result0">
+        <AttrNames>
+          <Item Value="jobId"/>
+          <Item Value="jobTitle"/>
+          <Item Value="maxSalary"/>
+          <Item Value="minSalary"/>
+        </AttrNames>
+      </nodeDefinition>
+    </tree>
+    <methodAction id="findDepartmentsByCriteria" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findDepartmentsByCriteria"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.findDepartmentsByCriteria_HRFacadeLocal_dataProvider_findDepartmentsByCriteria_result">
+      <NamedData NDName="jpqlStmt"
+                 NDValue="#{pageFlowScope.departmentQuery.jpql}"
+                 NDType="java.lang.String"/>
+      <NamedData NDName="firstResult" NDValue="0" NDType="int"/>
+      <NamedData NDName="maxResults" NDValue="0" NDType="int"/>
+    </methodAction>
+    <tree IterBinding="findDepartmentsByCriteriaIterator" id="Department">
+      <nodeDefinition DefName="src.model.Department" Name="result0">
+        <AttrNames>
+          <Item Value="departmentId"/>
+          <Item Value="departmentName"/>
+          <Item Value="locationId"/>
+        </AttrNames>
+      </nodeDefinition>
+    </tree>
+    <methodAction id="mergeEmployee" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="mergeEmployee"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.mergeEmployee_HRFacadeLocal_dataProvider_mergeEmployee_result">
+      <NamedData NDName="employee"
+                 NDValue="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider}"
+                 NDType="src.model.Employee"/>
+    </methodAction>
+    <methodAction id="getResultCount" InstanceName="HRFacadeLocal.dataProvider"
+                  DataControl="HRFacadeLocal" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="getResultCount"
+                  IsViewObjectMethod="false"
+                  ReturnName="data.HRFacadeLocal.methodResults.getResultCount_HRFacadeLocal_dataProvider_getResultCount_result">
+      <NamedData NDName="jpqlStmt" NDValue="#{pageFlowScope.jobQuery.jpqlStmt}"
+                 NDType="java.lang.String"/>
+    </methodAction>
+  </bindings>
+</pageDefinition>

@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:f="http://java.sun.com/jsf/core"
+          xmlns:h="http://java.sun.com/jsf/html"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich">
+  <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+  <f:view beforePhase="#{backingBeanScope.launcher.phaseListener}">
+    <af:document id="d1" title="First Page" uncommittedDataWarning="on">
+      <af:serverListener type="setCurrentTabDirty"
+                         method="#{backingBeanScope.launcher.setCurrentTabDirty}"/>
+      <af:form id="f1">
+        <af:pageTemplate viewId="/oracle/ui/pattern/dynamicShell/dynamicTabShell.jspx"
+                         value="#{bindings.pageTemplateBinding}" id="pt1">
+          <f:facet name="copyright">
+            <af:outputText value="2009 Oracle Corp. All Rights Reserved."
+                           id="ot2"/>
+          </f:facet>
+          <f:facet name="about">
+            <af:navigationPane hint="buttons" id="ptnp1">
+              <af:commandNavigationItem text="About" action="noop"
+                                        id="commandNavigationItem3"/>
+              <af:commandNavigationItem text="Privacy" action="noop"
+                                        id="commandNavigationItem4"/>
+            </af:navigationPane>
+          </f:facet>
+          <f:facet name="navigation">
+            <af:decorativeBox id="db1">
+              <f:facet name="center">
+                <af:panelGroupLayout id="pgl1" layout="vertical">
+                  <af:outputText value="Menu" id="ot1"
+                                 inlineStyle="font-size:larger; font-weight:bold;"/>
+                  <af:panelList id="pl1">
+                    <af:commandLink text="Jobs" id="cl4"
+                                    actionListener="#{backingBeanScope.launcher.launchMenu}"
+                                    inlineStyle="font-size:larger;">
+                      <f:attribute name="title" value="Overview"/>
+                      <f:attribute name="taskflowId"
+                                   value="/WEB-INF/flows/job-list-task-flow.xml#job-list-task-flow"/>
+                    </af:commandLink>
+                    <af:commandLink text="Employees" id="cl1" actionListener="#{backingBeanScope.launcher.launchMenu}"
+                                    inlineStyle="font-size:larger;">
+                    <f:attribute name="title" value="Employees"/>
+                      <f:attribute name="taskflowId"
+                                   value="/WEB-INF/flows/employee-list-task-flow.xml#employee-list-task-flow"/>
+                    </af:commandLink>
+                  </af:panelList>
+                </af:panelGroupLayout>
+              </f:facet>
+              <f:facet name="top"/>
+            </af:decorativeBox>
+          </f:facet>
+          <f:facet name="globalLinks">
+            <af:navigationPane hint="buttons" id="ptnp2">
+              <af:commandNavigationItem text="Preferences" action="noop"
+                                        id="commandNavigationItem1"/>
+              <af:commandNavigationItem text="Help" action="noop" id="cni4"/>
+              <af:commandNavigationItem text="Sign Out" action="noop"
+                                        id="commandNavigationItem2"/>
+            </af:navigationPane>
+          </f:facet>
+          <f:facet name="status">
+            <af:outputText value="#{securityContext.userName}" inlineStyle="font-weight: bold"
+                           id="ot3"/>
+          </f:facet>
+          <f:facet name="globalToolbar"/>
+          <f:facet name="globalSearch"/>
+          <f:facet name="globalTabs">
+            <af:navigationPane id="np1">
+              <af:commandNavigationItem text="First App"
+                                        id="cni1" action="first"/>
+              <af:commandNavigationItem text="Second App"
+                                        id="cni2" action="second" selected="true"/>
+              <af:commandNavigationItem text="Third App"
+                                        id="cni3" action="third"/>
+            </af:navigationPane>
+          </f:facet>
+          <f:facet name="welcome">
+            <af:region value="#{bindings.welcome1.regionModel}" id="r1"/>
+          </f:facet>
+          <f:facet name="innerToolbar"/>
+          <f:attribute name="statusWidth" value="10px"/>
+          <f:attribute name="legalAreaPosition" value="15"/>
+        </af:pageTemplate>
+      </af:form>
+      <f:facet name="metaContainer">
+        <af:group id="g1">
+          <af:resource type="javascript" source="/js/utils.js"/>
+          <af:resource type="javascript">
+          function setCurrentTabDirty(event) {
+              var source = AdfPage.PAGE.findComponent("d1");
+              AdfCustomEvent.queue(source, "setCurrentTabDirty", {},false);
+          }
+          </af:resource> 
+         </af:group>
+
+      </f:facet>
+    </af:document>
+  </f:view>
+</jsp:root>

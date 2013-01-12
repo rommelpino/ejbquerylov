@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pageDefinition xmlns="http://xmlns.oracle.com/adfm/uimodel"
+                version="11.1.1.55.36" id="job_listPageDef"
+                Package="src.view.pageDefs">
+  <parameters/>
+  <executables>
+    <variableIterator id="variables"/>
+    <methodIterator Binds="findAllJobs.result" DataControl="HRFacadeLocal"
+                    RangeSize="25" BeanClass="src.model.Job"
+                    id="findAllJobsIterator"/>
+  </executables>
+  <bindings>
+    <methodAction id="findAllJobs" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findAllJobs"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.findAllJobs_HRFacadeLocal_dataProvider_findAllJobs_result"/>
+    <tree IterBinding="findAllJobsIterator" id="Job">
+      <nodeDefinition DefName="src.model.Job" Name="Job0">
+        <AttrNames>
+          <Item Value="jobId"/>
+          <Item Value="jobTitle"/>
+          <Item Value="maxSalary"/>
+          <Item Value="minSalary"/>
+        </AttrNames>
+      </nodeDefinition>
+    </tree>
+    <action IterBinding="findAllJobsIterator" id="Execute"
+            RequiresUpdateModel="true" Action="iteratorExecute"/>
+  </bindings>
+  <eventMap xmlns="http://xmlns.oracle.com/adfm/contextualEvent">
+    <event name="mergeJobEvent">
+      <producer region="*">
+        <consumer region="" handler="Execute"/>
+      </producer>
+    </event>
+    <event name="persistJobEvent">
+      <producer region="*">
+        <consumer region="" handler="Execute"/>
+      </producer>
+    </event>
+  </eventMap>
+</pageDefinition>

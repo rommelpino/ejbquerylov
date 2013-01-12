@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<adfc-config xmlns="http://xmlns.oracle.com/adf/controller" version="1.2">
+  <task-flow-definition id="job-details-task-flow">
+    <default-activity id="__1">isNewJob</default-activity>
+    <data-control-scope id="__27">
+      <isolated/>
+    </data-control-scope>
+    <input-parameter-definition id="__6">
+      <name id="__7">tabContext</name>
+      <value>#{pageFlowScope.tabContext}</value>
+      <class>oracle.ui.pattern.dynamicShell.TabContext</class>
+      <required/>
+    </input-parameter-definition>
+    <input-parameter-definition id="__5">
+      <name id="__4">jobId</name>
+      <value>#{pageFlowScope.jobId}</value>
+      <class>java.lang.String</class>
+      <required/>
+    </input-parameter-definition>
+    <input-parameter-definition id="__3">
+      <name id="__2">editMode</name>
+      <value>#{pageFlowScope.editMode}</value>
+      <class>java.lang.Boolean</class>
+    </input-parameter-definition>
+    <managed-bean id="__23">
+      <managed-bean-name id="__22">jobDetailsForm</managed-bean-name>
+      <managed-bean-class id="__24">src.view.backing.JobDetailsForm</managed-bean-class>
+      <managed-bean-scope id="__25">backingBean</managed-bean-scope>
+    </managed-bean>
+    <view id="job_details">
+      <page>/job_details.jsff</page>
+    </view>
+    <router id="isNewJob">
+      <case>
+        <expression>#{pageFlowScope.jobId eq 'EMPTY'}</expression>
+        <outcome id="__42">initialize</outcome>
+      </case>
+      <default-outcome>toEdit</default-outcome>
+    </router>
+    <method-call id="initialize">
+      <method>#{backingBeanScope.jobDetailsForm.initialize}</method>
+      <outcome id="__33">
+        <fixed-outcome>toEdit</fixed-outcome>
+      </outcome>
+    </method-call>
+    <control-flow-rule id="__28">
+      <from-activity-id id="__29">isNewJob</from-activity-id>
+      <control-flow-case id="__35">
+        <from-outcome id="__34">initialize</from-outcome>
+        <to-activity-id id="__36">initialize</to-activity-id>
+      </control-flow-case>
+      <control-flow-case id="__44">
+        <from-outcome id="__45">toEdit</from-outcome>
+        <to-activity-id id="__43">job_details</to-activity-id>
+      </control-flow-case>
+    </control-flow-rule>
+    <control-flow-rule id="__46">
+      <from-activity-id id="__47">initialize</from-activity-id>
+      <control-flow-case id="__50">
+        <from-outcome id="__49">toEdit</from-outcome>
+        <to-activity-id id="__48">job_details</to-activity-id>
+      </control-flow-case>
+    </control-flow-rule>
+    <use-page-fragments/>
+  </task-flow-definition>
+</adfc-config>

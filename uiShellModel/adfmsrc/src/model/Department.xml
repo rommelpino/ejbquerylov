@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<JavaBean xmlns="http://xmlns.oracle.com/adfm/beanmodel" version="11.1.1.56.60"
+          id="Department" Package="src.model" BeanClass="src.model.Department"
+          isJavaBased="true">
+  <Attribute Name="departmentId" PrimaryKey="true" Type="java.lang.Long">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="src.model.Department.departmentId_LABEL"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <Attribute Name="departmentName" Type="java.lang.String">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="src.model.Department.departmentName_LABEL"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <Attribute Name="locationId" Type="java.lang.Long">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="src.model.Department.locationId_LABEL"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <AccessorAttribute id="manager" IsCollection="false"
+                     BeanClass="src.model.Employee"
+                     CollectionBeanClass="UpdateableSingleValue"/>
+  <MethodAccessor IsCollection="false" Type="java.lang.String" id="toString"
+                  ReturnNodeName="Return"/>
+  <ConstructorMethod IsCollection="true" Type="src.model.Department"
+                     BeanClass="src.model.Department" id="Department"/>
+  <ResourceBundle>
+    <PropertiesBundle xmlns="http://xmlns.oracle.com/adfm/resourcebundle"
+                      PropertiesFile="ModelBundle"/>
+  </ResourceBundle>
+</JavaBean>

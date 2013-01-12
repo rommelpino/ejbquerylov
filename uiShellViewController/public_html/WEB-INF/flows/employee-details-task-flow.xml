@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="windows-1252" ?>
+<adfc-config xmlns="http://xmlns.oracle.com/adf/controller" version="1.2">
+  <task-flow-definition id="employee-details-task-flow">
+    <default-activity id="__1">employee_details</default-activity>
+    <data-control-scope id="__65">
+      <isolated/>
+    </data-control-scope>
+    <input-parameter-definition id="__3">
+      <name id="__2">tabContext</name>
+      <value>#{pageFlowScope.tabContext}</value>
+      <class>oracle.ui.pattern.dynamicShell.TabContext</class>
+      <required/>
+    </input-parameter-definition>
+    <input-parameter-definition id="__5">
+      <name id="__4">employeeId</name>
+      <value>#{pageFlowScope.employeeId}</value>
+      <required/>
+    </input-parameter-definition>
+    <input-parameter-definition id="__18">
+      <name id="__19">editMode</name>
+      <value>#{pageFlowScope.editMode}</value>
+      <class>java.lang.Boolean</class>
+    </input-parameter-definition>
+    <managed-bean id="__8">
+      <managed-bean-name id="__7">employeeQuery</managed-bean-name>
+      <managed-bean-class id="__6">soadev.ext.adf.query.QueryLOV</managed-bean-class>
+      <managed-bean-scope id="__9">pageFlow</managed-bean-scope>
+      <managed-property id="__53">
+        <property-name id="__54">parameter</property-name>
+        <value id="__55">bindings.Employee</value>
+      </managed-property>
+      <managed-property id="__56">
+        <property-name id="__58">observers</property-name>
+        <list-entries>
+          <value id="__57">#{pageFlowScope.employeeLOVPagination}</value>
+        </list-entries>
+      </managed-property>
+      <managed-property id="__61">
+        <property-name id="__60">converterKey</property-name>
+        <value id="__59">employeeId</value>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__11">
+      <managed-bean-name id="__12">jobQuery</managed-bean-name>
+      <managed-bean-class id="__13">soadev.ext.adf.query.QueryLOV</managed-bean-class>
+      <managed-bean-scope id="__10">pageFlow</managed-bean-scope>
+      <managed-property id="__24">
+        <property-name id="__26">parameter</property-name>
+        <value id="__25">bindings.Job</value>
+      </managed-property>
+      <managed-property id="__29">
+        <property-name id="__28">converterKey</property-name>
+        <value id="__27">jobId</value>
+      </managed-property>
+      <managed-property id="__43">
+        <property-name id="__45">observers</property-name>
+        <list-entries>
+          <value id="__44">#{pageFlowScope.jobLOVPagination}</value>
+        </list-entries>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__14">
+      <managed-bean-name id="__17">departmentQuery</managed-bean-name>
+      <managed-bean-class id="__15">soadev.ext.adf.query.QueryLOV</managed-bean-class>
+      <managed-bean-scope id="__16">pageFlow</managed-bean-scope>
+      <managed-property id="__30">
+        <property-name id="__31">parameter</property-name>
+        <value id="__32">bindings.Department</value>
+      </managed-property>
+      <managed-property id="__34">
+        <property-name id="__35">converterKey</property-name>
+        <value id="__33">departmentId</value>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__23">
+      <managed-bean-name id="__20">employeeDetailsForm</managed-bean-name>
+      <managed-bean-class id="__21">src.view.backing.EmployeeDetailsForm</managed-bean-class>
+      <managed-bean-scope id="__22">backingBean</managed-bean-scope>
+    </managed-bean>
+    <managed-bean id="__39">
+      <managed-bean-name id="__38">jobLOVPagination</managed-bean-name>
+      <managed-bean-class id="__36">soadev.component.model.PaginationModel</managed-bean-class>
+      <managed-bean-scope id="__37">pageFlow</managed-bean-scope>
+      <managed-property id="__41">
+        <property-name id="__40">maxResults</property-name>
+        <value id="__42">30</value>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__48">
+      <managed-bean-name id="__46">employeeLOVPagination</managed-bean-name>
+      <managed-bean-class id="__47">soadev.component.model.PaginationModel</managed-bean-class>
+      <managed-bean-scope id="__49">pageFlow</managed-bean-scope>
+      <managed-property id="__50">
+        <property-name id="__52">maxResults</property-name>
+        <value id="__51">10</value>
+      </managed-property>
+      <managed-property id="__64">
+        <property-name id="__62">projectionOper</property-name>
+        <value id="__63">none</value>
+      </managed-property>
+    </managed-bean>
+    <view id="employee_details">
+      <page>/fragments/employee_details.jsff</page>
+    </view>
+    <critical/>
+    <use-page-fragments/>
+  </task-flow-definition>
+</adfc-config>

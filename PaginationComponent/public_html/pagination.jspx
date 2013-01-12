@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:f="http://java.sun.com/jsf/core"
+          xmlns:h="http://java.sun.com/jsf/html"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich">
+  <jsp:directive.page contentType="text/html;charset=windows-1252"/>
+  <af:componentDef var="attrs" componentVar="component">
+    <af:panelGroupLayout id="dc_pgl1" layout="horizontal"
+                         partialTriggers="dc_cl1 dc_cb1 dc_cb2 dc_cl2 dc_soc1"
+                         rendered="#{attrs.rendered}">
+      <af:toolbar id="dc_t1">
+        <af:selectOneChoice label="#{soadev['pagination.maxResults']}" id="dc_soc1"
+                            value="#{attrs.model.maxResults}"
+                            valueChangeListener="#{component.maxResultsValueChanged}"
+                            autoSubmit="true" simple="false">
+          <af:selectItem label="10" value="10" id="dc_si2"/>
+          <af:selectItem label="20" value="20" id="dc_si4"/>
+          <af:selectItem label="30" value="30" id="dc_si3"/>
+          <af:selectItem label="40" value="40" id="dc_si5"/>
+          <af:selectItem label="50" value="50" id="dc_si1"/>
+        </af:selectOneChoice>
+        <af:group id="dc_g1">
+          <af:commandLink text="#{soadev['pagination.first']}" id="dc_cl1"
+                          actionListener="#{component.first}"
+                          disabled="#{attrs.model.pageNumber le 1}"
+                          partialSubmit="true"/>
+        </af:group>
+        <af:group id="dc_g2">
+          <af:commandLink text="#{soadev['pagination.previous']}" id="dc_cb1"
+                          actionListener="#{component.previous}"
+                          disabled="#{attrs.model.pageNumber le 1}"
+                          partialSubmit="true"/>
+        </af:group>
+        <af:outputText id="dc_ot1" value="#{attrs.model.pageInfo}"
+                       noWrap="true"/>
+        <af:group id="dc_g3">
+          <af:commandLink text="#{soadev['pagination.next']}" id="dc_cb2"
+                          actionListener="#{component.next}"
+                          disabled="#{attrs.model.pageNumber eq attrs.model.maxPage}"
+                          partialSubmit="true"/>
+        </af:group>
+        <af:group id="dc_g4">
+          <af:commandLink text="#{soadev['pagination.last']}" id="dc_cl2"
+                          actionListener="#{component.last}"
+                          disabled="#{attrs.model.pageNumber eq attrs.model.maxPage}"
+                          partialSubmit="true"/>
+        </af:group>
+      </af:toolbar>
+      <f:facet name="separator">
+        <af:separator id="dc_s1"/>
+      </f:facet>
+    </af:panelGroupLayout>
+    <af:xmlContent>
+      <component xmlns="http://xmlns.oracle.com/adf/faces/rich/component">
+        <display-name>pagination</display-name>
+        <component-class>soadev.component.Pagination</component-class>
+        <attribute>
+          <attribute-name>model</attribute-name>
+          <attribute-class>soadev.component.model.PaginationModel</attribute-class>
+          <required>true</required>
+        </attribute>
+        <attribute>
+          <attribute-name>rendered</attribute-name>
+          <attribute-class>soadev.component.model.PaginationModel</attribute-class>
+        </attribute>
+        <component-extension>
+          <component-tag-namespace>soadev.component</component-tag-namespace>
+          <component-taglib-uri>/soadevComponentLib</component-taglib-uri>
+          <method-attribute>
+            <attribute-name>execute</attribute-name>
+            <method-signature>void method(javax.faces.event.ActionEvent)</method-signature>
+            <required>true</required>
+          </method-attribute>
+        </component-extension>
+      </component>
+    </af:xmlContent>
+  </af:componentDef>
+</jsp:root>

@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich"
+          xmlns:f="http://java.sun.com/jsf/core">
+  <af:panelHeader text="#{pageFlowScope.editMode? 'Edit ':'View '}Job: #{bindings.jobId}" id="ph2"
+                  size="-1"
+                  partialTriggers="ctb1 ctb2">
+    <f:facet name="context"/>
+    <f:facet name="menuBar"/>
+    <f:facet name="toolbar">
+      <af:toolbar id="t1">
+        <af:commandToolbarButton text="Edit" id="ctb1"
+                                 actionListener="#{backingBeanScope.jobDetailsForm.edit}"
+                                 rendered="#{not pageFlowScope.editMode and securityContext.userInRole['app_admin, job_editor']}"
+                                 icon="/images/edit_ena.png"/>
+        <af:commandToolbarButton text="Done" id="ctb4"
+                                 actionListener="#{backingBeanScope.jobDetailsForm.cancel}"
+                                 rendered="#{not pageFlowScope.editMode}"
+                                 icon="/images/taskcompleted_ena.png"/>
+        <af:commandToolbarButton text="Save and Close" id="ctb2"
+                                 actionListener="#{backingBeanScope.jobDetailsForm.saveAndClose}"
+                                 rendered="#{pageFlowScope.editMode}"
+                                 icon="/images/save_ena.png"
+                                 disabledIcon="/images/save_dis.png"/>
+        <af:commandToolbarButton text="Cancel" id="ctb3"
+                                 actionListener="#{backingBeanScope.jobDetailsForm.cancel}"
+                                 immediate="true"
+                                 rendered="#{pageFlowScope.editMode}"
+                                 icon="/images/cancel_ena.png"
+                                 disabledIcon="/images/cancel_dis.png"/>
+      </af:toolbar>
+    </f:facet>
+    <f:facet name="legend"/>
+    <f:facet name="info"/>
+    <af:panelHeader text="Basic Information" id="ph1" size="1">
+      <f:facet name="context"/>
+      <f:facet name="menuBar"/>
+      <f:facet name="toolbar"/>
+      <f:facet name="legend"/>
+      <f:facet name="info"/>
+      <af:panelFormLayout id="pfl1" partialTriggers="ctb1 ctb3 ctb2">
+        <af:inputText value="#{bindings.jobId.inputValue}"
+                      label="#{bindings.jobId.hints.label}"
+                      required="#{bindings.jobId.hints.mandatory}"
+                      columns="#{bindings.jobId.hints.displayWidth}"
+                      maximumLength="#{bindings.jobId.hints.precision}"
+                      shortDesc="#{bindings.jobId.hints.tooltip}" id="it4"
+                      readOnly="#{!pageFlowScope.editMode or bindings.findJobByIdIterator.currentRow.dataProvider.jobId ne null}"
+                      autoSubmit="true">
+          <f:validator binding="#{bindings.jobId.validator}"/>
+          <f:valueChangeListener type="src.view.listeners.DirtyListener"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.jobTitle.inputValue}"
+                      label="#{bindings.jobTitle.hints.label}"
+                      required="#{bindings.jobTitle.hints.mandatory}"
+                      columns="#{bindings.jobTitle.hints.displayWidth}"
+                      maximumLength="#{bindings.jobTitle.hints.precision}"
+                      shortDesc="#{bindings.jobTitle.hints.tooltip}" id="it3"
+                      readOnly="#{!pageFlowScope.editMode}" autoSubmit="true">
+          <f:validator binding="#{bindings.jobTitle.validator}"/>
+          <f:valueChangeListener type="src.view.listeners.DirtyListener"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.minSalary.inputValue}"
+                      label="#{bindings.minSalary.hints.label}"
+                      required="#{bindings.minSalary.hints.mandatory}"
+                      columns="#{bindings.minSalary.hints.displayWidth}"
+                      maximumLength="#{bindings.minSalary.hints.precision}"
+                      shortDesc="#{bindings.minSalary.hints.tooltip}" id="it2"
+                      readOnly="#{!pageFlowScope.editMode}" autoSubmit="true">
+          <f:validator binding="#{bindings.minSalary.validator}"/>
+          <f:valueChangeListener type="src.view.listeners.DirtyListener"/>
+          <af:convertNumber groupingUsed="false"
+                            pattern="#{bindings.minSalary.format}"/>
+        </af:inputText>
+        <af:inputText value="#{bindings.maxSalary.inputValue}"
+                      label="#{bindings.maxSalary.hints.label}"
+                      required="#{bindings.maxSalary.hints.mandatory}"
+                      columns="#{bindings.maxSalary.hints.displayWidth}"
+                      maximumLength="#{bindings.maxSalary.hints.precision}"
+                      shortDesc="#{bindings.maxSalary.hints.tooltip}" id="it1"
+                      readOnly="#{!pageFlowScope.editMode}" autoSubmit="true">
+          <f:validator binding="#{bindings.maxSalary.validator}"/>
+          <f:valueChangeListener type="src.view.listeners.DirtyListener"/>
+          <af:convertNumber groupingUsed="false"
+                            pattern="#{bindings.maxSalary.format}"/>
+        </af:inputText>
+      </af:panelFormLayout>
+    </af:panelHeader>
+  </af:panelHeader>
+</jsp:root>

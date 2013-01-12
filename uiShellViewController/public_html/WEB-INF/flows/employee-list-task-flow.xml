@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="windows-1252" ?>
+<adfc-config xmlns="http://xmlns.oracle.com/adf/controller" version="1.2">
+  <task-flow-definition id="employee-list-task-flow">
+    <default-activity id="__1">employee_list</default-activity>
+    <input-parameter-definition id="__11">
+      <name id="__10">tabContext</name>
+      <value>#{pageFlowScope.tabContext}</value>
+      <class>oracle.ui.pattern.dynamicShell.TabContext</class>
+      <required/>
+    </input-parameter-definition>
+    <managed-bean id="__2">
+      <managed-bean-name id="__4">employeeQuery</managed-bean-name>
+      <managed-bean-class id="__5">soadev.ext.adf.query.QueryLOV</managed-bean-class>
+      <managed-bean-scope id="__3">pageFlow</managed-bean-scope>
+      <managed-property id="__70">
+        <property-name id="__9">systemSavedSearchDefList</property-name>
+        <list-entries>
+          <value-class>soadev.ext.adf.query.SavedSearchDef</value-class>
+          <value>#{savedSearch1}</value>
+        </list-entries>
+      </managed-property>
+      <managed-property id="__32">
+        <property-name id="__31">parameter</property-name>
+        <value id="__12">bindings.Employee</value>
+      </managed-property>
+      <managed-property id="__33">
+        <property-name id="__35">supplementaryMap</property-name>
+        <map-entries>
+        <map-entry>
+        <key>department.departmentId</key>
+        <value>#{departmentSOC.items}</value>
+        </map-entry>
+        </map-entries>
+      </managed-property>
+      <managed-property id="__87">
+        <property-name id="__88">observers</property-name>
+        <list-entries>
+          <value-class>soadev.ext.adf.query.SavedSearchDef</value-class>
+          <value>#{pageFlowScope.paginationModel}</value>
+        </list-entries>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__65">
+      <managed-bean-name id="__8">constants</managed-bean-name>
+      <managed-bean-class id="__7">soadev.ext.adf.query.Constants</managed-bean-class>
+      <managed-bean-scope id="__6">none</managed-bean-scope>
+    </managed-bean>
+    <managed-bean id="__18">
+      <managed-bean-name id="__15">savedSearch1</managed-bean-name>
+      <managed-bean-class id="__16">soadev.ext.adf.query.SavedSearchDef</managed-bean-class>
+      <managed-bean-scope id="__17">none</managed-bean-scope>
+      <managed-property id="__13">
+        <property-name id="__61">searchFields</property-name>
+        <list-entries>
+          <value-class>soadev.ext.adf.query.SearchFieldDef</value-class>
+          <value>#{searchField1}</value>
+        </list-entries>
+      </managed-property>
+      <managed-property id="__26">
+        <property-name id="__27">name</property-name>
+        <property-class>java.lang.String</property-class>
+        <value id="__25">Declarative Search</value>
+      </managed-property>
+      <managed-property id="__29">
+        <property-name id="__30">autoExecute</property-name>
+        <property-class>java.lang.Boolean</property-class>
+        <value id="__28">true</value>
+      </managed-property>
+      <managed-property id="__39">
+        <property-name id="__38">defaultSearch</property-name>
+        <property-class>java.lang.Boolean</property-class>
+        <value id="__37">true</value>
+      </managed-property>
+      <managed-property id="__42">
+        <property-name id="__40">readOnly</property-name>
+        <property-class>java.lang.Boolean</property-class>
+        <value id="__41">true</value>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__20">
+      <managed-bean-name id="__19">searchField1</managed-bean-name>
+      <managed-bean-class id="__21">soadev.ext.adf.query.SearchFieldDef</managed-bean-class>
+      <managed-bean-scope id="__14">none</managed-bean-scope>
+      <managed-property id="__24">
+        <property-name id="__22">attrName</property-name>
+        <value id="__23">lastName</value>
+      </managed-property>
+      <managed-property id="__48">
+        <property-name id="__46">values</property-name>
+        <list-entries>
+          <value id="__47">A</value>
+        </list-entries>
+      </managed-property>
+      <managed-property id="__56">
+        <property-name id="__55">operator</property-name>
+        <value id="__57">#{constants.operatorMap['CONTAINS']}</value>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__69">
+      <managed-bean-name id="__68">employeeListForm</managed-bean-name>
+      <managed-bean-class id="__67">src.view.backing.EmployeeListForm</managed-bean-class>
+      <managed-bean-scope id="__66">backingBean</managed-bean-scope>
+    </managed-bean>
+    <managed-bean id="__36">
+      <managed-bean-name id="__45">departmentSOC</managed-bean-name>
+      <managed-bean-class id="__44">soadev.ext.adf.query.helper.SelectItemsHelper</managed-bean-class>
+      <managed-bean-scope id="__43">none</managed-bean-scope>
+      <managed-property id="__51">
+        <property-name id="__50">operationBinding</property-name>
+        <value id="__49">findDepartmentsByCriteria</value>
+      </managed-property>
+      <managed-property id="__54">
+        <property-name id="__52">attributeValue</property-name>
+        <value id="__53">departmentId</value>
+      </managed-property>
+      <managed-property id="__60">
+        <property-name id="__59">displayAttributes</property-name>
+        <list-entries>
+          <value>departmentId</value>
+        </list-entries>
+      </managed-property>
+    </managed-bean>
+    <managed-bean id="__75">
+      <managed-bean-name id="__74">paginationModel</managed-bean-name>
+      <managed-bean-class id="__73">soadev.component.model.PaginationModel</managed-bean-class>
+      <managed-bean-scope id="__72">pageFlow</managed-bean-scope>
+      <managed-property id="__58">
+        <property-name id="__34">maxResults</property-name>
+        <value id="__62">10</value>
+      </managed-property>
+    </managed-bean>
+    <view id="employee_list">
+      <page>/fragments/employee_list.jsff</page>
+    </view>
+    <use-page-fragments/>
+  </task-flow-definition>
+</adfc-config>

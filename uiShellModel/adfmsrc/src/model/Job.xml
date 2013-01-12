@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<JavaBean xmlns="http://xmlns.oracle.com/adfm/beanmodel" version="11.1.1.55.36"
+          id="Job" Package="src.model" BeanClass="src.model.Job"
+          isJavaBased="true">
+  <Attribute Name="jobId" PrimaryKey="true" Type="java.lang.String"
+             IsNotNull="true">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="job.jobId"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <Attribute Name="jobTitle" Type="java.lang.String" IsNotNull="true">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="job.jobTitle"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <Attribute Name="maxSalary" Type="java.lang.Long" IsNotNull="true">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="job.maxSalary"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <Attribute Name="minSalary" Type="java.lang.Long" IsNotNull="true">
+    <Properties>
+      <SchemaBasedProperties>
+        <LABEL ResId="job.minSalary"/>
+      </SchemaBasedProperties>
+    </Properties>
+  </Attribute>
+  <MethodAccessor IsCollection="false" Type="java.lang.String" id="toString"
+                  ReturnNodeName="Return"/>
+  <ConstructorMethod IsCollection="true" Type="src.model.Job"
+                     BeanClass="src.model.Job" id="Job">
+    <ParameterInfo id="jobId" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="jobTitle" Type="java.lang.String" isStructured="false"/>
+    <ParameterInfo id="maxSalary" Type="java.lang.Long" isStructured="false"/>
+    <ParameterInfo id="minSalary" Type="java.lang.Long" isStructured="false"/>
+  </ConstructorMethod>
+  <ConstructorMethod IsCollection="true" Type="src.model.Job"
+                     BeanClass="src.model.Job" id="Job"/>
+  <ResourceBundle>
+    <PropertiesBundle xmlns="http://xmlns.oracle.com/adfm/resourcebundle"
+                      PropertiesFile="ModelBundle"/>
+  </ResourceBundle>
+</JavaBean>

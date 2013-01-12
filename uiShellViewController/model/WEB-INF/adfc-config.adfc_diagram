@@ -1,0 +1,64 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<SDM>
+   <OverallProperties
+      id="OverallProperties1"/>
+   <View
+      id="View14">
+      <property
+         name="activityId">First</property>
+      <property
+         name="page">/First.jspx</property>
+      <property
+         name="description">&lt;html>&lt;p>&lt;b>First&lt;/b>&lt;/p>&lt;p>Activity Type:  View&lt;/p></property>
+      <property
+         name="exceptionHandler">false</property>
+      <property
+         name="y">219.29297</property>
+      <property
+         name="x">123.5</property>
+   </View>
+   <View
+      id="View3">
+      <property
+         name="activityId">Second</property>
+      <property
+         name="page">/Second.jspx</property>
+      <property
+         name="description">&lt;html>&lt;p>&lt;b>Second&lt;/b>&lt;/p>&lt;p>Activity Type:  View&lt;/p></property>
+      <property
+         name="exceptionHandler">false</property>
+      <property
+         name="y">220.84473</property>
+      <property
+         name="x">306.0</property>
+   </View>
+   <WildcardControlFlowRule
+      id="WildcardControlFlowRule4">
+      <property
+         name="activityId">*</property>
+      <property
+         name="y">67.29883</property>
+      <property
+         name="x">243.0</property>
+   </WildcardControlFlowRule>
+   <ControlFlowCase
+      islink="true"
+      id="ControlFlowCase5"
+      from="WildcardControlFlowRule4"
+      to="View14">
+      <property
+         name="fromOutcome">first</property>
+      <property
+         name="sdm:polyPoints">L50,207.0,67.44824,123.5,164.94238,T50</property>
+   </ControlFlowCase>
+   <ControlFlowCase
+      islink="true"
+      id="ControlFlowCase6"
+      from="WildcardControlFlowRule4"
+      to="View3">
+      <property
+         name="fromOutcome">second</property>
+      <property
+         name="sdm:polyPoints">B50,243.0,109.94824,306.0,166.49414,T50</property>
+   </ControlFlowCase>
+</SDM>

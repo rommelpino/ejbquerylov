@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pageDefinition xmlns="http://xmlns.oracle.com/adfm/uimodel"
+                version="11.1.1.56.60"
+                id="job_details_task_flow_job_details_task_flow_initializePageDef"
+                Package="flows" SkipValidation="true">
+  <parameters/>
+  <executables/>
+  <bindings>
+    <methodAction id="findJobById" RequiresUpdateModel="true"
+                  Action="invokeMethod" MethodName="findJobById"
+                  IsViewObjectMethod="false" DataControl="HRFacadeLocal"
+                  InstanceName="HRFacadeLocal.dataProvider"
+                  ReturnName="HRFacadeLocal.methodResults.findJobById_HRFacadeLocal_dataProvider_findJobById_result">
+      <NamedData NDName="jobId" NDValue="EMPTY" NDType="java.lang.String"/>
+    </methodAction>
+  </bindings>
+</pageDefinition>

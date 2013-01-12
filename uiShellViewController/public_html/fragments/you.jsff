@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich">
+  <af:panelGroupLayout id="pgl1" layout="vertical" halign="center">
+    <af:outputText value="Welcome to Our Application!" id="ot1"
+                   inlineStyle="color:Blue; font-size:x-large; font-weight:bold;"/>
+    <af:spacer width="10" height="30" id="s1"/>
+    <af:image source="/images/BusinessLifestyle.png" id="i1"
+              shortDesc="example welcome page image"/>
+  </af:panelGroupLayout>
+</jsp:root>

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.1"
+          xmlns:af="http://xmlns.oracle.com/adf/faces/rich"
+          xmlns:f="http://java.sun.com/jsf/core">
+  <af:panelHeader text="Jobs" id="ph1" size="-1">
+    <f:facet name="context"/>
+    <f:facet name="menuBar"/>
+    <f:facet name="toolbar"/>
+    <f:facet name="legend"/>
+    <f:facet name="info"/>
+    <af:panelCollection id="pc1" featuresOff="detach">
+      <f:facet name="menus"/>
+      <f:facet name="toolbar">
+        <af:toolbar id="t2">
+          <af:commandToolbarButton text="New" id="ctb2"
+                                   actionListener="#{backingBeanScope.jobListForm.create}"
+                                   icon="/images/new_ena.png"
+                                   rendered="#{securityContext.userInRole['app_admin, job_creator']}"/>
+          <af:commandToolbarButton text="Edit" id="ctb1"
+                                   actionListener="#{backingBeanScope.jobListForm.edit}"
+                                   icon="/images/edit_ena.png"
+                                   rendered="#{securityContext.userInRole['app_admin, job_editor']}"/>
+          <af:commandToolbarButton text="Refresh" id="ctb3"
+                                   actionListener="#{bindings.Execute.execute}"
+                                   icon="/images/refresh_ena.gif"
+                                   disabledIcon="/images/refresh_dis.gif"/>
+        </af:toolbar>
+      </f:facet>
+      <f:facet name="statusbar"/>
+      <af:table value="#{bindings.Job.collectionModel}" var="row"
+                rows="#{bindings.Job.rangeSize}"
+                emptyText="#{bindings.Job.viewable ? 'No data to display.' : 'Access Denied.'}"
+                fetchSize="#{bindings.Job.rangeSize}" rowBandingInterval="0"
+                selectedRowKeys="#{bindings.Job.collectionModel.selectedRow}"
+                selectionListener="#{bindings.Job.collectionModel.makeCurrent}"
+                rowSelection="single" id="t1" columnStretching="blank"
+                partialTriggers="::ctb3">
+        <af:column sortProperty="jobId" sortable="true"
+                   headerText="#{bindings.Job.hints.jobId.label}" id="c4">
+          <af:commandLink text="#{row.jobId}" id="cl1"
+                          actionListener="#{backingBeanScope.jobListForm.view}"/>
+        </af:column>
+        <af:column sortProperty="jobTitle" sortable="true"
+                   headerText="#{bindings.Job.hints.jobTitle.label}" id="c2">
+          <af:outputText value="#{row.jobTitle}" id="ot4"/>
+        </af:column>
+        <af:column sortProperty="maxSalary" sortable="true"
+                   headerText="#{bindings.Job.hints.maxSalary.label}" id="c1">
+          <af:outputText value="#{row.maxSalary}" id="ot3">
+            <af:convertNumber groupingUsed="false"
+                              pattern="#{bindings.Job.hints.maxSalary.format}"/>
+          </af:outputText>
+        </af:column>
+        <af:column sortProperty="minSalary" sortable="true"
+                   headerText="#{bindings.Job.hints.minSalary.label}" id="c3">
+          <af:outputText value="#{row.minSalary}" id="ot2">
+            <af:convertNumber groupingUsed="false"
+                              pattern="#{bindings.Job.hints.minSalary.format}"/>
+          </af:outputText>
+        </af:column>
+      </af:table>
+      <f:facet name="secondaryToolbar"/>
+    </af:panelCollection>
+  </af:panelHeader>
+</jsp:root>
