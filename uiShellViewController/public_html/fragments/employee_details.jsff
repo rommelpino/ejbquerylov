@@ -113,7 +113,7 @@
                             pattern="#{bindings.commissionPct.format}"/>
         </af:inputText>
             
-        <!-- <af:inputListOfValues label="Department"
+         <af:inputListOfValues label="Department"
                               popupTitle="Search and Result Dialog" id="ilov3"
                               model="#{pageFlowScope.departmentQuery.listOfValuesModel}"
                               value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.department}"
@@ -141,30 +141,31 @@
                                   converter="#{pageFlowScope.jobQuery.dynamicConverter}"
                                   autoSubmit="true" simple="true"
                                   paginationExecute="#{bindings.findJobsByCriteria.execute}"
-                                  paginationModel="#{pageFlowScope.jobLOVPagination}"/>
+                                  paginationModel="#{pageFlowScope.jobLOVPagination}"
+                                  valueChangeListener="#{backingBeanScope.employeeDetailsForm.jobChanged}"/>
             <af:outputText value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.job.jobTitle}" id="ot1"
                            partialTriggers="ilov2"/>
           </af:panelGroupLayout>
-        </af:panelLabelAndMessage> -->
-         <af:inputListOfValues label="Job"
+        </af:panelLabelAndMessage> 
+         <!--<sc:inputListOfValues label="Job"
                               popupTitle="Search and Result Dialog" id="ilov2"
                               model="#{pageFlowScope.jobQuery.param['bindings.Job'].listOfValuesModel}"
                               searchDesc="Job Search"
                               value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.job}"
                               converter="#{pageFlowScope.jobQuery.param['bindings.Job'].convert['jobId']}"
-                              autoSubmit="true"/>
-        <af:inputListOfValues label="Department"
+                              autoSubmit="true" valueChangeListener=""/>-->
+        <!--<af:inputListOfValues label="Department"
                               popupTitle="Search and Result Dialog" id="ilov3"
                               model="#{pageFlowScope.departmentQuery.param['bindings.Department'].listOfValuesModel}"
                               value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.department}"
                               converter="#{pageFlowScope.departmentQuery.param['bindings.Department'].convert['departmentId']}"
-                              searchDesc="Department Search"/>
-        <af:inputListOfValues label="Manager"
+                              searchDesc="Department Search"/>-->
+        <!--<af:inputListOfValues label="Manager"
                               popupTitle="Search and Result Dialog" id="ilov1"
                               searchDesc="Employee Search"
                               model="#{pageFlowScope.employeeQuery.param['bindings.Employee'].listOfValuesModel}"
                               value="#{bindings.findEmployeeByIdIterator.currentRow.dataProvider.manager}"
-                              converter="#{pageFlowScope.employeeQuery.param['bindings.Employee'].convert['employeeId']}"/> 
+                              converter="#{pageFlowScope.employeeQuery.param['bindings.Employee'].convert['employeeId']}"/>--> 
       </af:panelFormLayout>
     </af:panelHeader>
   </af:panelHeader>         

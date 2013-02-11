@@ -2,6 +2,8 @@ package src.view.backing;
 
 import javax.faces.event.ActionEvent;
 
+import javax.faces.event.ValueChangeEvent;
+
 import oracle.binding.OperationBinding;
 
 public class EmployeeDetailsForm extends BaseForm {
@@ -24,5 +26,9 @@ public class EmployeeDetailsForm extends BaseForm {
       closeCurrentTab();
       //tries to activate the Overview tab if present
       activateTab(EMPLOYEE_LIST_TASK_FLOW);
+  }
+  
+  public void jobChanged(ValueChangeEvent e){
+      System.out.println("Success");
   }
 }

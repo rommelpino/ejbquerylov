@@ -131,9 +131,14 @@ public abstract class InputListOfValues extends RichDeclarativeComponent {
     }
 
     private void raiseValueChangeEvent(Object oldValue, Object newValue) {
-        ValueChangeEvent event =
-            new ValueChangeEvent(this, oldValue, newValue);
-        this.broadcast(event);
+        MethodExpression me = getValueChangeListener();
+        if (me != null) {
+            ValueChangeEvent event =
+                new ValueChangeEvent(this, oldValue, newValue);
+            //        this.broadcast(event);
+            ELContext elc = FacesContext.getCurrentInstance().getELContext();
+            getValueChangeListener().invoke(elc, new Object[] { event });
+        }
     }
 
     public void setRichTable(RichTable richTable) {
@@ -161,4 +166,6 @@ public abstract class InputListOfValues extends RichDeclarativeComponent {
     }
 
     public abstract ListOfValuesModel getModel();
+
+    public abstract MethodExpression getValueChangeListener();
 }
