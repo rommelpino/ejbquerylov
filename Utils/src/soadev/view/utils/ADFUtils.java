@@ -87,7 +87,10 @@ public class ADFUtils {
     public static Object getCurrentRowDataProvider(String iteratorName) {
         RowSetIterator iter = getRowSetIterator(iteratorName);
         DCDataRow row = (DCDataRow)iter.getCurrentRow();
-        return row.getDataProvider();
+        if(row != null){
+            return row.getDataProvider();
+        }
+        return null;
     }
 
     //eager style
