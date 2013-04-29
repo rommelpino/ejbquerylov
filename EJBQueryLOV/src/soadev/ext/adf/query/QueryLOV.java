@@ -10,21 +10,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
-import javax.faces.model.SelectItem;
 
 import oracle.adf.model.BindingContext;
 import oracle.adf.model.bean.DCDataRow;
@@ -38,7 +34,6 @@ import oracle.adf.view.rich.model.AttributeDescriptor;
 import oracle.adf.view.rich.model.ColumnDescriptor;
 import oracle.adf.view.rich.model.ConjunctionCriterion;
 import oracle.adf.view.rich.model.Criterion;
-import oracle.adf.view.rich.model.FilterableQueryDescriptor;
 import oracle.adf.view.rich.model.ListOfValuesModel;
 import oracle.adf.view.rich.model.QueryDescriptor;
 import oracle.adf.view.rich.model.QueryModel;
@@ -62,7 +57,6 @@ import static soadev.ext.adf.query.Constants.BLANK;
 import static soadev.ext.adf.query.Constants.BLANK_ENDING_DATE;
 import static soadev.ext.adf.query.Constants.BLANK_STARTING_DATE;
 import static soadev.ext.adf.query.Constants.CLOSE_BRACKET;
-import static soadev.ext.adf.query.Constants.COMPONENT_MAP;
 import static soadev.ext.adf.query.Constants.DATE_TYPE;
 import static soadev.ext.adf.query.Constants.DOT;
 import static soadev.ext.adf.query.Constants.OPEN_BRACKET;
@@ -107,6 +101,7 @@ public class QueryLOV implements Subject, Serializable{
     private transient Map<String, AttributeDef> _attributes;
     private transient List<AttributeDef> _attributeList;
     private transient QueryDescriptor _currentDescriptor;
+    private transient QueryDescriptor _quickDescriptor;
     private transient QueryModel _queryModel;
     private transient ListOfValuesModel _listOfValuesModel;
     private transient String _searchCriteria;
@@ -146,6 +141,17 @@ public class QueryLOV implements Subject, Serializable{
         _jpqlStmt = null;
         notifyObservers();
     }
+    
+    private void clearValues(QueryDescriptor queryDescriptor){
+        for(Criterion criterion: queryDescriptor.getConjunctionCriterion().getCriterionList()){
+            AttributeCriterion attrCriterion =
+                (AttributeCriterion)criterion;
+            List values = attrCriterion.getValues();
+            values.clear();
+            values.add("");
+            values.add("");
+        }
+    }
 
     public AbstractQueryPersistenceHelper getQueryPersistenceHelper() {
         return _queryPersistenceHelper;
@@ -155,7 +161,7 @@ public class QueryLOV implements Subject, Serializable{
         if (_queryDescriptorMap == null) {
             _queryDescriptorMap = new TreeMap<String, QueryDescriptor>();
             for (SavedSearchDef searchDef : getSavedSearchDefList()) {
-                QueryDescriptorImpl qd = new QueryDescriptorImpl(searchDef);
+                QueryDescriptor qd = new FilterableQueryDescriptorImpl(searchDef, getAttributes());
                 _queryDescriptorMap.put(searchDef.getName(), qd);
             }
         }
@@ -169,6 +175,7 @@ public class QueryLOV implements Subject, Serializable{
         }
         setupAttributes();
         setupSavedSearchDefs();
+        
         hasInitialized = true;
     }
 
@@ -176,6 +183,9 @@ public class QueryLOV implements Subject, Serializable{
         addAllSearchDefList(getSystemSavedSearchDefList());
         addAllSearchDefList(getUserSavedSearchDefList());
     }
+    
+
+    
 
     private List<SavedSearchDef> getUserSavedSearchDefList() {
         AbstractQueryPersistenceHelper helper = getQueryPersistenceHelper();
@@ -243,14 +253,14 @@ public class QueryLOV implements Subject, Serializable{
             //if no provided savedsearch then generate a default
             if (_currentDescriptor == null && !getAttributeList().isEmpty()) {
                 SavedSearchDef ssd = new SavedSearchDef();
-                ssd.setQuery(this);
+//                ssd.setQuery(this);
                 ssd.setName("System Generated");
                 ssd.setReadOnly(true);
                 ssd.setDefaultSearch(true);
                 SearchFieldDef sfd = new SearchFieldDef();
                 sfd.setAttrName(getAttributeList().get(0).getName());
                 ssd.addSearchFieldDef(sfd);
-                QueryDescriptor qd = new QueryDescriptorImpl(ssd);
+                QueryDescriptor qd = new FilterableQueryDescriptorImpl(ssd, getAttributes());
                 getQueries().put(ssd.getName(), qd);
                 _currentDescriptor = qd;
             }
@@ -311,9 +321,9 @@ public class QueryLOV implements Subject, Serializable{
 
     public void processQuery(QueryEvent event) {
         _logger.fine("QueryLOV.processQuery begin");
-        QueryDescriptorImpl descriptor =
-            (QueryDescriptorImpl)event.getDescriptor();
-        String criteria = descriptor.toString();
+        QueryDescriptor descriptor = event.getDescriptor();
+//        String criteria = descriptor.toString();
+        String criteria = process(descriptor.getConjunctionCriterion());
         setSearchCriteria(criteria);
         prepare();
     }
@@ -453,7 +463,6 @@ public class QueryLOV implements Subject, Serializable{
 
     private List<AttributeDef> getPageDefAttributes(JUCtrlHierBinding juchb) {
         JUCtrlHierTypeBinding[] typeBindings = juchb.getTypeBindings();
-        DCIteratorBinding iter = juchb.getDCIteratorBinding();
         List<AttributeDef> pageDefAttributes = new ArrayList<AttributeDef>();
         //the first typeBinding should be the root entity
         accessorNames = typeBindings[0].getAccessorNames();
@@ -557,9 +566,9 @@ public class QueryLOV implements Subject, Serializable{
 
     private void addAllSearchDefList(List<SavedSearchDef> savedSearchDefList) {
         getSavedSearchDefList().addAll(savedSearchDefList);
-        for (SavedSearchDef ssd : savedSearchDefList) {
-            ssd.setQuery(this);
-        }
+//        for (SavedSearchDef ssd : savedSearchDefList) {
+//            ssd.setQuery(this);
+//        }
     }
 
     public void setSystemSavedSearchDefList(List<SavedSearchDef> systemSaveSearchDefList) {
@@ -732,473 +741,29 @@ public class QueryLOV implements Subject, Serializable{
         }
     }
 
-
-    public class QueryDescriptorImpl extends FilterableQueryDescriptor{
-
-        private SavedSearchDef _savedSearchDef; //retain copy for use during reset
-        private Map<String, Object> _filterCriteria;
-        private AttributeCriterion _currentCriterion;
-        private Map<String, Object> _uiHintsMap;
-        private ConjunctionCriterion _conjunctionCriterion;
-        //List for hidden criterion so that they can be added back unchanged.
-        private List<Criterion> _hiddenCriterions;
-
-        public QueryDescriptorImpl(SavedSearchDef savedSearchDef) {
-            _savedSearchDef = savedSearchDef;
-            initialize();
-        }
-        
-//        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
-//        {
-//            in.defaultReadObject();
-//            initialize();
-//        }
-        public SavedSearchDef generateSavedSearch() {
-            SavedSearchDef ssd = new SavedSearchDef();
-            ssd.setAutoExecute(unbox((Boolean)getUIHints().get(UIHINT_AUTO_EXECUTE)));
-            ssd.setDefaultSearch(unbox((Boolean)getUIHints().get(UIHINT_DEFAULT)));
-            ssd.setDefaultConjunction(_conjunctionCriterion.getConjunction());
-            ssd.setName(_savedSearchDef.getName() + "_copy");
-            ssd.setMode((QueryDescriptor.QueryMode)getUIHints().get(UIHINT_MODE));
-            ssd.setQuery(QueryLOV.this);
-            ssd.setReadOnly(unbox((Boolean)getUIHints().get(UIHINT_IMMUTABLE)));
-            ssd.setResultsId((String)getUIHints().get(UIHINT_RESULTS_COMPONENT_ID));
-            ssd.setSaveResultsLayout(unbox((Boolean)getUIHints().get(UIHINT_SAVE_RESULTS_LAYOUT)));
-            //            ssd.setShowInList(unbox((Boolean) getUIHints().get(UIHINT_SHOW_IN_LIST)));
-            List<SearchFieldDef> searchFields =
-                new ArrayList<SearchFieldDef>();
-            for (Criterion criterion :
-                 _conjunctionCriterion.getCriterionList()) {
-                AttributeCriterionImpl attrCriterion =
-                    (AttributeCriterionImpl)criterion;
-                SearchFieldDef sfd = new SearchFieldDef();
-                sfd.setAttrName(attrCriterion.getAttribute().getName());
-                sfd.setOperator((OperatorDef)attrCriterion.getOperator().getValue());
-                sfd.setQuery(QueryLOV.this);
-                sfd.setRemovable(attrCriterion.isRemovable());
-                //copy list to support proper reset;
-                List copy = copy(attrCriterion.getValues());
-                sfd.setValues(copy);
-                searchFields.add(sfd);
-            }
-            ssd.setSearchFields(searchFields);
-            return ssd;
-        }
-
-        public void initialize() {
-            SavedSearchDef savedSearchDef =
-                _savedSearchDef.copy(); //work with a copy
-            List<Criterion> criterionList = new ArrayList<Criterion>();
-            for (SearchFieldDef searchFieldDef :
-                 savedSearchDef.getSearchFields()) {
-                //shallow copy list to support reset
-                List values = copy(searchFieldDef.getValues());
-                //ensure values are not null to avoid el property exception isReadOnly blah blah...
-                if (values.isEmpty()) {
-                    values.add(BLANK);
-                    values.add(BLANK);
-                }
-                Criterion criterion =
-                    new AttributeCriterionImpl(searchFieldDef.getAttributeDef(),
-                                               searchFieldDef.getOperator(),
-                                               values,
-                                               searchFieldDef.isRemovable());
-                criterionList.add(criterion);
-            }
-            _currentCriterion = null;
-            _conjunctionCriterion =
-                    new ConjunctionCriterionImpl(savedSearchDef.getDefaultConjunction(),
-                                                 criterionList);
-            _hiddenCriterions = new ArrayList<Criterion>();
-            _uiHintsMap = new HashMap<String, Object>();
-            _uiHintsMap.put(UIHINT_AUTO_EXECUTE,
-                            savedSearchDef.isAutoExecute());
-            _uiHintsMap.put(UIHINT_MODE, savedSearchDef.getMode());
-            _uiHintsMap.put(UIHINT_NAME, savedSearchDef.getName());
-            _uiHintsMap.put(UIHINT_SAVE_RESULTS_LAYOUT,
-                            savedSearchDef.isSaveResultsLayout());
-            _uiHintsMap.put(UIHINT_SHOW_IN_LIST,
-                            savedSearchDef.isShowInList());
-            _uiHintsMap.put(UIHINT_IMMUTABLE, savedSearchDef.isReadOnly());
-            _uiHintsMap.put(UIHINT_RESULTS_COMPONENT_ID,
-                            savedSearchDef.getResultsId());
-            _uiHintsMap.put(UIHINT_DEFAULT, savedSearchDef.isDefaultSearch());
-        }
-
-        private List copy(List list) {
-            //shallow copy
-            List copy = new ArrayList();
-            copy.addAll(list);
-            return copy;
-        }
-
-        public void addCriterion(String name) {
-            // criterion
-            SearchFieldDef sfd = new SearchFieldDef();
-            sfd.setAttrName(name);
-            //initialize dummy values
-            sfd.getValues().add(BLANK);
-            sfd.getValues().add(BLANK);
-            sfd.setQuery(QueryLOV.this);
-            Criterion criterion =
-                new AttributeCriterionImpl(sfd.getAttributeDef(),
-                                           sfd.getOperator(), sfd.getValues(),
-                                           sfd.isRemovable());
-            ((ConjunctionCriterionImpl)_conjunctionCriterion).addCriterion(criterion);
-
-        }
-
-
-        public void changeMode(QueryDescriptor.QueryMode mode) {
-            _uiHintsMap.put(UIHINT_MODE, mode);
-        }
-
-        public SavedSearchDef getSavedSearchDef() {
-            return _savedSearchDef;
-        }
-
-        public ConjunctionCriterion getConjunctionCriterion() {
-            return _conjunctionCriterion;
-        }
-
-        public void setConjunctionCriterion(ConjunctionCriterion criterion) {
-            _conjunctionCriterion = criterion;
-        }
-
-        public String getName() {
-            return (String)getUIHints().get(UIHINT_NAME);
-        }
-
-        public void removeCriterion(Criterion criterion) {
-            ((ConjunctionCriterionImpl)_conjunctionCriterion).removeCriterion(criterion);
-        }
-
-        public Map<String, Object> getUIHints() {
-            return _uiHintsMap;
-        }
-
-        public AttributeCriterion getCurrentCriterion() {
-            return _currentCriterion;
-        }
-
-        public void setCurrentCriterion(AttributeCriterion attrCriterion) {
-            this._currentCriterion = attrCriterion;
-        }
-
-        @Override
-        public Map<String, Object> getFilterCriteria() {
-            return _filterCriteria;
-        }
-
-        @Override
-        public void setFilterCriteria(Map<String, Object> filterCriteria) {
-            _filterCriteria = filterCriteria;
-        }
-
-        public void addHiddenCriterion(AttributeCriterionImpl criterion) {
-            _hiddenCriterions.add(criterion);
-        }
-
-        public void removeHiddenCriterion(AttributeCriterionImpl criterion) {
-            _hiddenCriterions.remove(criterion);
-        }
-
-        private String formatDateForJPQL(Date date) {
-            SimpleDateFormat formatter = new SimpleDateFormat();
-            formatter.applyPattern("yyyy-MM-dd");
-            StringBuilder builder = new StringBuilder();
-            builder.append("{d '");
-            builder.append(formatter.format(date));
-            builder.append("'}");
-            return builder.toString();
-        }
-
-
-        private Object safeGetValue(List list, int index) {
-            if (list == null) {
-                return null;
-            }
-            if (list.size() <= index) { //index is zero based
-                return null;
-            }
-            return list.get(index);
-        }
-
-        private String format(Object value, String type) {
-            if (AttributeDef.isDateType(type)) {
-                if(value == null){
-                    value = new Date();
-                }
-                return formatDateForJPQL((Date)value);
-            } else if(value != null){
-                return value.toString();
-            } else{
-                return "";
-            }
-        }
-
-
-        private Date getDateFrom(Object value) {
-            if (value != null && value instanceof Date) {
-                return (Date)value;
-            }
-            return BLANK_STARTING_DATE;
-        }
-
-        private Date getDateTo(Object value) {
-            if (value != null && value instanceof Date) {
-                return (Date)value;
-            }
-            return BLANK_ENDING_DATE;
-        }
-
-
-        public String toString() {
-            //Before appending text to the builder ensure that you put space first
-            StringBuilder builder = new StringBuilder();
-            boolean ignoreConjunction = true;
-            for (Criterion criterion :
-                 _conjunctionCriterion.getCriterionList()) {
-                if (!(criterion instanceof AttributeCriterion)) {
-                    continue;
-                }
-                AttributeCriterion attrCriterion =
-                    (AttributeCriterion)criterion;
-                AttributeDescriptor.Operator operator =
-                    attrCriterion.getOperator();
-                if (operator.getValue().equals(OperatorDef.NO_OPERATOR)) {
-                    //exclude criterions with no operator
-                    continue;
-                }
-                String type =
-                    attrCriterion.getAttribute().getType().getCanonicalName();
-                ColumnDescriptorImpl descriptor =
-                    (ColumnDescriptorImpl)attrCriterion.getAttribute();
-                String attrName = descriptor.getName();
-                //no before conjuction for the first criteria
-                if (!ignoreConjunction) {
-                    ConjunctionCriterion.Conjunction conjunction =
-                        _conjunctionCriterion.getConjunction();
-                    builder.append(SPACE);
-                    builder.append(conjunction);
-                }
-                ignoreConjunction = false;
-                builder.append(SPACE);
-                //enclose each critetia in a bracket (criteria_1) AND (criteria_2)
-                builder.append(OPEN_BRACKET);
-                //build attribute string-- [o.job.jobTitle]
-                builder.append(buildAttributeExpression(attrName, type));
-
-                List values = attrCriterion.getValues();
-
-                //space before operator statements
-                builder.append(SPACE);
-                Object value = safeGetValue(values, 0);
-                OperatorDef oper = (OperatorDef)operator.getValue();
-                int count = 0;
-                switch (oper) {
-
-                case EQUALS:
-                    if (value == null || "".equals(value)) {
-                        builder.append(_IS_NULL);
-                        break;
-                    }
-                    if (AttributeDef.isDateType(type)) { //disregard time element
-                        Date date = (Date)value;
-                        Date dateFrom = MyUtils.removeTimeElement(date);
-                        Date dateTo = MyUtils.addOneDay(dateFrom);
-                        builder.append(" >= ");
-                        builder.append(formatDateForJPQL(dateFrom));
-                        builder.append(_AND);
-                        //another attribute string
-                        builder.append(buildAttributeExpression(attrName,
-                                                                type));
-                        builder.append(" < ");
-                        builder.append(formatDateForJPQL(dateTo));
-                        break;
-                    }
-
-                    if (AttributeDef.isNumericType(type)) {
-                        //blank values on numeric types is assumed zero
-                        if (value == null || "".equals(value)) {
-                            value = 0;
-                        }
-                        builder.append(" = ");
-                        builder.append(value);
-                        break;
-                    }
-                    //default
-                    builder.append(" = ");
-                    builder.append(formatStringForJPQL(value.toString()));
-                    break;
-                case NOT_EQUALS:
-                    if (value == null || "".equals(value)) {
-                        builder.append(_IS_NOT_NULL);
-                        break;
-                    }
-                    if (AttributeDef.isDateType(type)) { //disregard time element
-                        Date date = (Date)value;
-                        Date dateFrom = MyUtils.removeTimeElement(date);
-                        Date dateTo = MyUtils.addOneDay(dateFrom);
-                        builder.append(" < ");
-                        builder.append(formatDateForJPQL(dateFrom));
-                        builder.append(_OR);
-                        //another attribute string
-                        builder.append(buildAttributeExpression(attrName,
-                                                                type));
-                        builder.append(" >= ");
-                        builder.append(formatDateForJPQL(dateTo));
-                        break;
-                    }
-
-                    if (AttributeDef.isNumericType(type)) {
-                        builder.append(" <> ");
-                        builder.append(value);
-                        break;
-                    }
-                    //default
-                    builder.append(" <> ");
-                    builder.append(formatStringForJPQL(value.toString()));
-                    break;
-                case GREATER_THAN:
-                    builder.append(" > ");
-                    builder.append(format(value, type));
-                    break;
-                case GREATER_THAN_EQUALS:
-                    builder.append(" >= ");
-                    builder.append(format(value, type));
-                    break;
-                case LESS_THAN:
-                    builder.append(" < ");
-                    builder.append(format(value, type));
-                    break;
-                case LESS_THAN_EQUALS:
-                    builder.append(" <= ");
-                    builder.append(format(value, type));
-                    break;
-
-                case STARTS_WITH:
-                    builder.append("LIKE '");
-                    builder.append(getValueString(value));
-                    builder.append("%'");
-                    break;
-                case ENDS_WITH:
-                    builder.append("LIKE '%");
-                    builder.append(getValueString(value));
-                    builder.append("'");
-                    break;
-                case CONTAINS:
-                    builder.append("LIKE '%");
-                    builder.append(getValueString(value));
-                    builder.append("%'");
-                    break;
-                case DOES_NOT_CONTAIN:
-                    builder.append("NOT LIKE '%");
-                    builder.append(getValueString(value));
-                    builder.append("%'");
-                    break;
-                case LIKE:
-                    builder.append("LIKE '");
-                    builder.append(getValueString(value));
-                    builder.append("'");
-                    break;
-                case BETWEEN:
-                    if (type.equals(DATE_TYPE) ||
-                        type.equals(TIMESTAMP_TYPE)) {
-                        Date dateFrom =
-                            MyUtils.removeTimeElement((getDateFrom(value)));
-                        Date dateTo = getDateTo(safeGetValue(values, 1));
-                        //exclude time elements in search
-                        dateTo = MyUtils.addOneDay(dateTo);
-                        dateTo = MyUtils.removeTimeElement(dateTo);
-                        builder.append(">= ");
-                        builder.append(formatDateForJPQL(dateFrom));
-                        builder.append(_AND);
-                        //another attribute string
-                        builder.append(buildAttributeExpression(attrName,
-                                                                type));
-                        builder.append(" < ");
-                        builder.append(formatDateForJPQL(dateTo));
-                        break;
-                    }
-                    if (AttributeDef.isNumericType(type)) {
-                        //empty string for numeric types assumed to be zero
-                        if (value == null || "".equals(value)) {
-                            value = 0;
-                        }
-                        builder.append("BETWEEN ");
-                        builder.append(value);
-                        builder.append(_AND);
-                        builder.append(SPACE);
-                        builder.append(safeGetValue(values, 1));
-                        break;
-                    }
-                    break;
-                case IN:
-                    //... IN ( 'x', 'y', 'z')
-                    builder.append("IN ( ");
-                    if (value instanceof List) {
-                        for (Object obj : (List)value) {
-                            if (count > 0) {
-                                builder.append(" , ");
-                            }
-                            if (AttributeDef.isNumericType(type)) {
-                                builder.append(obj);
-                            } else {
-                                builder.append(formatStringForJPQL((String)obj));
-                            }
-                            count++;
-                        }
-                    } else {
-                        if (AttributeDef.isNumericType(type)) {
-                            builder.append(value);
-                        } else {
-                            builder.append(formatStringForJPQL((String)value));
-                        }
-                    }
-                    builder.append(CLOSE_BRACKET);
-                    break;
-                case NOT_IN:
-                    //... NOT IN ( 'x', 'y', 'z')
-                    builder.append("NOT IN ( ");
-                    if (value instanceof List) {
-                        for (Object obj : (List)value) {
-                            if (count > 0) {
-                                builder.append(" , ");
-                            }
-                            if (AttributeDef.isNumericType(type)) {
-                                builder.append(obj);
-                            } else {
-                                builder.append(formatStringForJPQL((String)obj));
-                            }
-                            count++;
-                        }
-                    } else {
-                        if (AttributeDef.isNumericType(type)) {
-                            builder.append(value);
-                        } else {
-                            builder.append(formatStringForJPQL((String)value));
-                        }
-                    }
-                    builder.append(CLOSE_BRACKET);
-                    //include NULL values as well
-                    //... OR <attr> IS NULL
-                    builder.append(_OR);
-                    builder.append(buildAttributeExpression(attrName, type));
-                    builder.append(_IS_NULL);
-                    break;
-                default:
-                    //should not come to this point;
-                    System.out.println("----------Check problematic Query.QueryDescriptorImpl.toString()-----------");
-                } //end switch
-                //every criterion should be enclosed in brackets
-                builder.append(CLOSE_BRACKET);
-            } //end for
-            return builder.toString();
-        }
-
+    public void setQuickDescriptor(QueryDescriptor quickDescriptor) {
+        this._quickDescriptor = quickDescriptor;
     }
 
+    public QueryDescriptor getQuickDescriptor() {
+        if(!hasInitialized){
+            setup();
+        }
+        if(_quickDescriptor == null){
+            SavedSearchDef ssd = new SavedSearchDef();
+            ssd.setName("Quick Query");
+            ssd.setReadOnly(true);
+            ssd.setDefaultSearch(true);
+            for(AttributeDef attr: getAttributeList()){
+                SearchFieldDef sfd = new SearchFieldDef();
+                sfd.setAttrName(attr.getName());   
+                sfd.setOperator(attr.getDefaultOperator());
+                ssd.addSearchFieldDef(sfd);
+            }
+            _quickDescriptor = new FilterableQueryDescriptorImpl(ssd, getAttributes());
+        }
+        return _quickDescriptor;
+    }
 
     // A QueryModel is the model holding all available saved searches -- represented by QueryDescriptor.
 
@@ -1214,8 +779,9 @@ public class QueryLOV implements Subject, Serializable{
                     _attrDescriptors = new ArrayList<AttributeDescriptor>();
                     for (AttributeDef attr : _attributes.values()) {
                         if (attr.isQueriable()) {
+                            Object model = getSupplementedModel(attr.getName());
                             AttributeDescriptor attrDesc =
-                                new ColumnDescriptorImpl(attr);
+                                new ColumnDescriptorImpl(attr, model);
                             _attrDescriptors.add(attrDesc);
                         }
                     }
@@ -1236,7 +802,7 @@ public class QueryLOV implements Subject, Serializable{
             }
             // We need a create a new QueryDescriptor based on the existing one
             if (qdBase != null) {
-                QueryDescriptorImpl qdImpl = (QueryDescriptorImpl)qdBase;
+                FilterableQueryDescriptorImpl qdImpl = (FilterableQueryDescriptorImpl)qdBase;
                 SavedSearchDef savedSearchDef = qdImpl.generateSavedSearch();
                 savedSearchDef.setName(name);
                 savedSearchDef.setQueryId(getQueryId());
@@ -1244,8 +810,8 @@ public class QueryLOV implements Subject, Serializable{
                 savedSearchDef.setReadOnly(false);
                 System.out.println("owie's edit");
                 //*******
-                QueryDescriptorImpl newQueryDesc =
-                    new QueryDescriptorImpl(savedSearchDef);
+                QueryDescriptor newQueryDesc =
+                    new FilterableQueryDescriptorImpl(savedSearchDef, QueryLOV.this.getAttributes());
 
                 //Mark this newly created QD as a user saved search
                 newQueryDesc.getUIHints().put(QueryDescriptor.UIHINT_IMMUTABLE,
@@ -1274,7 +840,7 @@ public class QueryLOV implements Subject, Serializable{
                 //persistence
                 if (getQueryPersistenceHelper() != null) {
                     SavedSearchDef ssd =
-                        ((QueryDescriptorImpl)queryDescriptor).getSavedSearchDef();
+                        ((FilterableQueryDescriptorImpl)queryDescriptor).getSavedSearchDef();
                     getQueryPersistenceHelper().removeSavedSearchDef(ssd);
                 }
             }
@@ -1291,7 +857,7 @@ public class QueryLOV implements Subject, Serializable{
                 String currentName = queryDescriptor.getName();
                 queryDescriptor.getUIHints().putAll(uiHints);
                 SavedSearchDef ssd =
-                    ((QueryDescriptorImpl)queryDescriptor).getSavedSearchDef();
+                    ((FilterableQueryDescriptorImpl)queryDescriptor).getSavedSearchDef();
                 ssd.update(uiHints);
                 if (!currentName.equals(newName)) {
                     getQueries().remove(currentName);
@@ -1312,7 +878,7 @@ public class QueryLOV implements Subject, Serializable{
          * @param queryDescriptor
          */
         public void reset(QueryDescriptor queryDescriptor) {
-            ((QueryDescriptorImpl)queryDescriptor).initialize();
+            ((FilterableQueryDescriptorImpl)queryDescriptor).initialize();
             QueryLOV.this.prepare();
         }
 
@@ -1352,446 +918,6 @@ public class QueryLOV implements Subject, Serializable{
         public void setCurrentDescriptor(QueryDescriptor qd) {
             if (qd != null)
                 _currentDescriptor = qd;
-        }
-
-
-    }
-
-    public class ConjunctionCriterionImpl extends ConjunctionCriterion {
-        private List<Criterion> _criterionList;
-        private ConjunctionCriterion.Conjunction _conjunction;
-
-        public ConjunctionCriterionImpl(Conjunction conjunction,
-                                        List<Criterion> criterionList) {
-            _conjunction = conjunction;
-            _criterionList = criterionList;
-        }
-
-        public Object getKey(Criterion criterion) {
-            int index = _criterionList.indexOf(criterion);
-            if (index != -1) {
-                return Integer.toString(index);
-            }
-            return null;
-        }
-
-        public Criterion getCriterion(Object key) {
-            int index = -1;
-            if (key != null && key instanceof Integer) {
-                index = (Integer)key;
-            } else if (key instanceof String) {
-                index = Integer.parseInt((String)key);
-            }
-            List<Criterion> criterionList = getCriterionList();
-            if (index > -1 && index < criterionList.size())
-                return criterionList.get(index);
-
-            return null;
-        }
-
-        public ConjunctionCriterion.Conjunction getConjunction() {
-            return this._conjunction;
-        }
-
-        public List<Criterion> getCriterionList() {
-            return _criterionList;
-        }
-
-        public void setConjunction(ConjunctionCriterion.Conjunction conjunction) {
-            this._conjunction = conjunction;
-        }
-
-        public void removeCriterion(Criterion criterion) {
-            _criterionList.remove(criterion);
-        }
-
-        public void addCriterion(Criterion criterion) {
-            _criterionList.add(criterion);
-        }
-
-    }
-
-    public class AttributeCriterionImpl extends AttributeCriterion {
-        private AttributeDef _attrDef;
-        private AttributeDescriptor.Operator _operator;
-        private List _values;
-        private boolean _removable;
-        private AttributeDescriptor _attrDescriptor;
-
-
-        public AttributeCriterionImpl(AttributeDef attributeDef,
-                                      OperatorDef operatorDef, List values,
-                                      boolean removable) {
-            this._attrDef = attributeDef;
-            this._values = values;
-            this._removable = removable;
-            this._attrDescriptor = new ColumnDescriptorImpl(attributeDef);
-            this._operator =
-                    ((ColumnDescriptorImpl)_attrDescriptor).getOperator(operatorDef);
-        }
-
-        public AttributeDescriptor getAttribute() {
-            return _attrDescriptor;
-        }
-
-        public AttributeDescriptor.Operator getOperator() {
-            return _operator;
-        }
-
-
-        /**
-         * The list of operators returned for an AttributeCriterion could be different from those
-         * returned for an AttributeDescriptor. For e.g., for an LOV attribute that supports multiple
-         * selection it makes more sense to support "In" and "Not In" operators rather than "Equals /
-         * Not Equals".
-         * @return
-         */
-        public Map<String, AttributeDescriptor.Operator> getOperators() {
-
-            Map<String, AttributeDescriptor.Operator> optrMap =
-                new LinkedHashMap<String, AttributeDescriptor.Operator>();
-            if (((ColumnDescriptorImpl)getAttribute()).isLOV()) {
-                //inputListOfValues cannot support mutiple selection
-                if (!getAttribute().getComponentType().equals(AttributeDescriptor.ComponentType.inputListOfValues)) {
-                    AttributeDescriptor.Operator in =
-                        ((ColumnDescriptorImpl)_attrDescriptor).getOperator(OperatorDef.IN);
-                    optrMap.put(in.getLabel(), in);
-                    AttributeDescriptor.Operator notIn =
-                        ((ColumnDescriptorImpl)_attrDescriptor).getOperator(OperatorDef.NOT_IN);
-                    optrMap.put(notIn.getLabel(), notIn);
-                }
-            }
-            //plus the default supported operators
-            List<OperatorDef> operatorList = _attrDef.getSupportedOperators();
-            for (OperatorDef operator : operatorList) {
-                AttributeDescriptor.Operator optr =
-                    ((ColumnDescriptorImpl)_attrDescriptor).getOperator(operator);
-                optrMap.put(optr.getLabel(), optr);
-            }
-            return optrMap;
-        }
-
-        public List getValues() {
-            if (_values != null) {
-                return _values;
-            }
-            return Collections.emptyList();
-        }
-
-        public void setValues(List values) {
-            this._values = values;
-        }
-
-        public boolean isRemovable() {
-            return this._removable;
-        }
-
-        public void setOperator(AttributeDescriptor.Operator operator) {
-            this._operator = operator;
-        }
-
-        /**
-         * Returns the ComponentType specific to an AttributeCriterion. This may be different from the
-         * ComponentType of the AttributeDescriptor, based on the operator chosen or whether
-         * multi-select is enabled or not. For e.g., for LOV attributes, <br/>
-         * - when multi-select is enabled, <br/>
-         *   - for operator 'In / Not In', the component type will always be selectManyChoice regardless
-         *     of the default type or dataType. <br/>
-         *   - For all other operators it's an inputText (inputDate or inputNumberSpinbox for Date and
-         *     Number datatypes respectively.)
-         * - when multi-select is disabled, <br/>
-         *   - for operator Equals/Not Equals, it will be the default type (of the attribute)<br/>
-         *   - for all other operators, an inputText (or inputDate or inputNumberSpinbox)
-         *
-         * @param operator the operator for which the component type needs to be determined
-         * @return a ComponentType
-         */
-        @Override
-        public AttributeDescriptor.ComponentType getComponentType(AttributeDescriptor.Operator operator) {
-            ColumnDescriptorImpl attrDesc =
-                (ColumnDescriptorImpl)getAttribute();
-            boolean isMultiSelectOper = attrDesc.hasVariableOperands(operator);
-            if (attrDesc.isLOV()) {
-                Object model = getAttribute().getModel();
-                if (isMultiSelectOper) {
-                    // always return selectManyChoice for multiSelect enabled operators
-                    return (model instanceof ListOfValuesModel) ?
-                           AttributeDescriptor.ComponentType.inputComboboxListOfValues :
-                           AttributeDescriptor.ComponentType.selectManyChoice;
-                }
-                if (operator.getValue().equals(OperatorDef.EQUALS) ||
-                    operator.getValue().equals(OperatorDef.NOT_EQUALS)) {
-                    return (model instanceof ListOfValuesModel) ?
-                           AttributeDescriptor.ComponentType.inputListOfValues :
-                           AttributeDescriptor.ComponentType.selectOneChoice;
-                }
-            }
-            // the base component type is used (based on the datatype)
-            String typeName = attrDesc.getType().getName();
-            if (AttributeDef.isNumericType(typeName)) {
-                return AttributeDescriptor.ComponentType.inputNumberSpinbox;
-            }
-            if (typeName.equals(DATE_TYPE) ||
-                typeName.equals(TIMESTAMP_TYPE)) {
-                return AttributeDescriptor.ComponentType.inputDate;
-            }
-            return AttributeDescriptor.ComponentType.inputText;
-        }
-    }
-
-    public final class ColumnDescriptorImpl extends ColumnDescriptor {
-        private AttributeDef _attrDef;
-
-        public ColumnDescriptorImpl(AttributeDef attrDef) {
-            _attrDef = attrDef;
-        }
-
-
-        public String getDescription() {
-            //            return _attrDef.getDescription(); not yet localized
-            return null;
-        }
-
-        public Converter getConverter() {
-            Application application =
-                FacesContext.getCurrentInstance().getApplication();
-            Class type = getType();
-            if (Number.class.isAssignableFrom(type)) {
-                return application.createConverter(Number.class);
-            }
-            if (Date.class.isAssignableFrom(type)) {
-                return application.createConverter(Date.class);
-            }
-            return null;
-        }
-
-        public String getFormat() {
-            return _attrDef.getFormat();
-        }
-
-        public String getLabel() {
-            String attrLabel = _attrDef.getLabel();
-            String accessorName = _attrDef.getAccessorName();
-            if (_attrDef.getPropertiesBundle() != null) {
-                String resourceLabel =
-                    JSFUtils.getStringFromBundle(_attrDef.getPropertiesBundle(),
-                                                 attrLabel, attrLabel);
-
-                return (accessorName != null) ?
-                       AttributeDef.concatWithDot(accessorName,
-                                                  resourceLabel) :
-                       resourceLabel;
-            }
-            return (accessorName != null) ?
-                   AttributeDef.concatWithDot(accessorName, attrLabel) :
-                   attrLabel;
-        }
-
-        /**
-         * Returns true if criterion is indexed and not required.
-         *
-         * @return true if criterion is indexed and not required else false.
-         */
-        public boolean isIndexed() {
-            //only when criterion is indexed but not required it will be considered as indexed
-            return (_attrDef.isIndexed() && !_attrDef.isMandatory());
-        }
-
-        public boolean isLOV() {
-            AttributeDescriptor.ComponentType componentType =
-                getComponentType();
-            return componentType.equals(AttributeDescriptor.ComponentType.inputListOfValues) ||
-                componentType.equals(AttributeDescriptor.ComponentType.inputComboboxListOfValues) ||
-                componentType.equals(AttributeDescriptor.ComponentType.selectManyChoice) ||
-                componentType.equals(AttributeDescriptor.ComponentType.selectOneChoice) ||
-                componentType.equals(AttributeDescriptor.ComponentType.selectOneListbox);
-        }
-
-
-        /**
-         * Based on the component type of the attribute, it returns an appropriate model object expected
-         * of that component
-         * @return
-         */
-        public Object getModel() {
-            Object model = getSupplementedModel(_attrDef.getName());
-            if (model != null) {
-                return model;
-            }
-            AttributeDescriptor.ComponentType compType = getComponentType();
-            return getModel(compType);
-        }
-
-        public Object getModel(AttributeDescriptor.ComponentType compType) {
-            if (compType.equals(AttributeDescriptor.ComponentType.selectOneChoice) ||
-                compType.equals(AttributeDescriptor.ComponentType.selectManyChoice)) {
-                List selectItems = new ArrayList();
-                //use custom properties as select items
-                for (Map.Entry<String, String> entry :
-                     _attrDef.getCustomProperties().entrySet()) {
-                    selectItems.add(new SelectItem(entry.getValue(),
-                                                   entry.getKey()));
-                }
-                return selectItems;
-            }
-            return null;
-        }
-
-        public String getName() {
-            return _attrDef.getName();
-        }
-
-
-        public Set<AttributeDescriptor.Operator> getSupportedOperators() {
-            List<OperatorDef> operatorList = _attrDef.getSupportedOperators();
-            Set<AttributeDescriptor.Operator> optrSet =
-                new HashSet<AttributeDescriptor.Operator>();
-            for (OperatorDef operator : operatorList) {
-                AttributeDescriptor.Operator optr = new OperatorImpl(operator);
-                optrSet.add(optr);
-            }
-            return optrSet;
-        }
-
-        public Class getType() {
-            return _attrDef.getType();
-        }
-
-        public AttributeDescriptor.ComponentType getComponentType() {
-            Object model = getSupplementedModel(_attrDef.getName());
-            if (model != null) {
-                if (model instanceof ListOfValuesModel) {
-                    //inputComboboxListOfValues should return at least an empty list.
-                    return ((ListOfValuesModel)model).getItems() == null ?
-                           AttributeDescriptor.ComponentType.inputListOfValues :
-                           AttributeDescriptor.ComponentType.inputComboboxListOfValues;
-                }
-                if (model instanceof List) {
-                    return AttributeDescriptor.ComponentType.selectManyChoice;
-                }
-                //undefined model continue with the usual below;
-            }
-            AttributeDescriptor.ComponentType componentType =
-                COMPONENT_MAP.get(_attrDef.getComponentType());
-            return (componentType != null) ? componentType :
-                   ComponentType.inputText;
-        }
-
-        public boolean isReadOnly() {
-            return false;
-        }
-
-        /**
-         * Returns true if this criterion is a required field or is the only indexed field in the
-         * criterion list.
-         *
-         * @return true if single indexed criterion exist else false
-         */
-        public boolean isRequired() {
-            //building of the JPQL String could throw exception if appropriate controls are not marks as required.
-            //handle with care :)
-            String type = _attrDef.getType().getName();
-            return false;//_attrDef.isMandatory() ||
-//                AttributeDef.isNumericType(type) ||
-//                AttributeDef.isDateType(type) || isLOV();
-        }
-
-        public AttributeDescriptor.Operator getOperator(OperatorDef operator) {
-            return new OperatorImpl(operator);
-        }
-
-        public int getLength() {
-            return _attrDef.getLength();
-        }
-
-        public int getMaximumLength() {
-            return _attrDef.getMaximumLength();
-        }
-
-        /**
-         * Determines if the passed in operator can be used with multiple values, like the IN, Not IN
-         * @param operator
-         * @return boolean
-         */
-        public boolean hasVariableOperands(AttributeDescriptor.Operator operator) {
-            if (operator == null)
-                return false;
-            OperatorImpl operImpl = (OperatorImpl)operator;
-            return operImpl.getOperatorDef().hasVariableOperands();
-        }
-
-        /**
-         * Determines if the operator requires showing the default component type. The default component
-         * type of the attribute is used for operator Equals / Not Equals.
-         * @param operator
-         * @return
-         */
-        public boolean useDefaultComponentType(AttributeDescriptor.Operator operator) {
-            OperatorImpl operImpl = (OperatorImpl)operator;
-            return (operImpl.getOperatorDef().equals(OperatorDef.EQUALS) ||
-                    operImpl.getOperatorDef().equals(OperatorDef.NOT_EQUALS) ||
-                    operImpl.getOperatorDef().equals(OperatorDef.NO_OPERATOR));
-        }
-
-        public int getWidth() {
-            return 0;
-        }
-
-        public String getAlign() {
-            String type = _attrDef.getType().getName();
-            if (type.equals(TIMESTAMP_TYPE) || type.equals(DATE_TYPE)) {
-                return "center";
-            }
-            return "start";
-        }
-
-        public class OperatorImpl extends AttributeDescriptor.Operator {
-            private OperatorDef _operator;
-
-            public OperatorImpl(OperatorDef operator) {
-                if (operator != null)
-                    _operator = operator;
-                else
-                    _operator = OperatorDef.NO_OPERATOR;
-            }
-
-            public String getLabel() {
-                return _operator.getLabel();
-            }
-
-            public Object getValue() {
-                return _operator;
-            }
-
-            // Returns the default operandCount for the operator. Except when the operator is null it
-            // returns 1 and if operandCount is -1, indicating unlimited operands, it returns 1, as from
-            // the UI standpoint a selectmanyChoice will be rendered.
-
-            public int getOperandCount() {
-                if (_operator != null) {
-                    int operandCount = _operator.getOperandCount();
-                    if (operandCount != -1)
-                        return operandCount;
-                }
-                return 1;
-            }
-
-            @Override
-            public boolean equals(Object operator) {
-                if (operator != null && operator instanceof OperatorImpl) {
-                    return (this._operator.equals(((OperatorImpl)operator).getOperatorDef()));
-                }
-                return false;
-            }
-
-            @Override
-            public String toString() {
-                return _operator.getLabel();
-            }
-
-            private OperatorDef getOperatorDef() {
-                return _operator;
-            }
         }
 
 
@@ -1871,7 +997,7 @@ public class QueryLOV implements Subject, Serializable{
 
         public void valueSelected(Object value) {
             //reset the query to original citerions
-            ((QueryDescriptorImpl)getCurrentDescriptor()).initialize();
+            ((FilterableQueryDescriptorImpl)getCurrentDescriptor()).initialize();
         }
 
 
@@ -1915,7 +1041,8 @@ public class QueryLOV implements Subject, Serializable{
                 if (_attributes != null) {
                     _columnDescriptors = new ArrayList<ColumnDescriptor>();
                     for (AttributeDef attr : _attributes.values()) {
-                        ColumnDescriptor cd = new ColumnDescriptorImpl(attr);
+                        Object model = getSupplementedModel(attr.getName());
+                        ColumnDescriptor cd = new ColumnDescriptorImpl(attr, model);
                         _columnDescriptors.add(cd);
                     }
                     return _columnDescriptors;
@@ -2009,5 +1136,292 @@ public class QueryLOV implements Subject, Serializable{
             result = MyUtils.getProperty(object, getConverterKey());
             return result != null ? result.toString() : "";
         }
+    }
+    private String formatDateForJPQL(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat();
+        formatter.applyPattern("yyyy-MM-dd");
+        StringBuilder builder = new StringBuilder();
+        builder.append("{d '");
+        builder.append(formatter.format(date));
+        builder.append("'}");
+        return builder.toString();
+    }
+
+
+    private Object safeGetValue(List list, int index) {
+        if (list == null) {
+            return null;
+        }
+        if (list.size() <= index) { //index is zero based
+            return null;
+        }
+        return list.get(index);
+    }
+
+    private String format(Object value, String type) {
+        if (AttributeDef.isDateType(type)) {
+            if (value == null) {
+                value = new Date();
+            }
+            return formatDateForJPQL((Date)value);
+        } else if (value != null) {
+            return value.toString();
+        } else {
+            return "";
+        }
+    }
+
+
+    private Date getDateFrom(Object value) {
+        if (value != null && value instanceof Date) {
+            return (Date)value;
+        }
+        return BLANK_STARTING_DATE;
+    }
+
+    private Date getDateTo(Object value) {
+        if (value != null && value instanceof Date) {
+            return (Date)value;
+        }
+        return BLANK_ENDING_DATE;
+    }
+    
+    private String process(ConjunctionCriterion conjunctionCriterion) {
+        //Before appending text to the builder ensure that you put space first
+        StringBuilder builder = new StringBuilder();
+        boolean ignoreConjunction = true;
+        for (Criterion criterion : conjunctionCriterion.getCriterionList()) {
+            if (!(criterion instanceof AttributeCriterion)) {
+                continue;
+            }
+            AttributeCriterion attrCriterion = (AttributeCriterion)criterion;
+            AttributeDescriptor.Operator operator =
+                attrCriterion.getOperator();
+            List values = attrCriterion.getValues();
+            Object value = safeGetValue(values, 0);
+            Object value1 = safeGetValue(values, 1);
+            //ignore empty operators or empty values
+            if (operator.getValue().equals(OperatorDef.NO_OPERATOR) ||
+                ("".equals(value) && "".equals(value1))) {
+                //exclude criterions with no operator
+                continue;
+            }
+            String type =
+                attrCriterion.getAttribute().getType().getCanonicalName();
+            ColumnDescriptorImpl descriptor =
+                (ColumnDescriptorImpl)attrCriterion.getAttribute();
+            String attrName = descriptor.getName();
+            //no before conjuction for the first criteria
+            if (!ignoreConjunction) {
+                ConjunctionCriterion.Conjunction conjunction =
+                    conjunctionCriterion.getConjunction();
+                builder.append(SPACE);
+                builder.append(conjunction);
+            }
+            ignoreConjunction = false;
+            builder.append(SPACE);
+            //enclose each critetia in a bracket (criteria_1) AND (criteria_2)
+            builder.append(OPEN_BRACKET);
+            //build attribute string-- [o.job.jobTitle]
+            builder.append(buildAttributeExpression(attrName, type));
+            //space before operator statements
+            builder.append(SPACE);
+            OperatorDef oper = (OperatorDef)operator.getValue();
+            int count = 0;
+            switch (oper) {
+
+            case EQUALS:
+                if (value == null || "".equals(value)) {
+                    builder.append(_IS_NULL);
+                    break;
+                }
+                if (AttributeDef.isDateType(type)) { //disregard time element
+                    Date date = (Date)value;
+                    Date dateFrom = MyUtils.removeTimeElement(date);
+                    Date dateTo = MyUtils.addOneDay(dateFrom);
+                    builder.append(" >= ");
+                    builder.append(formatDateForJPQL(dateFrom));
+                    builder.append(_AND);
+                    //another attribute string
+                    builder.append(buildAttributeExpression(attrName, type));
+                    builder.append(" < ");
+                    builder.append(formatDateForJPQL(dateTo));
+                    break;
+                }
+
+                if (AttributeDef.isNumericType(type)) {
+                    //blank values on numeric types is assumed zero
+                    if (value == null || "".equals(value)) {
+                        value = 0;
+                    }
+                    builder.append(" = ");
+                    builder.append(value);
+                    break;
+                }
+                //default
+                builder.append(" = ");
+                builder.append(formatStringForJPQL(value.toString()));
+                break;
+            case NOT_EQUALS:
+                if (value == null || "".equals(value)) {
+                    builder.append(_IS_NOT_NULL);
+                    break;
+                }
+                if (AttributeDef.isDateType(type)) { //disregard time element
+                    Date date = (Date)value;
+                    Date dateFrom = MyUtils.removeTimeElement(date);
+                    Date dateTo = MyUtils.addOneDay(dateFrom);
+                    builder.append(" < ");
+                    builder.append(formatDateForJPQL(dateFrom));
+                    builder.append(_OR);
+                    //another attribute string
+                    builder.append(buildAttributeExpression(attrName, type));
+                    builder.append(" >= ");
+                    builder.append(formatDateForJPQL(dateTo));
+                    break;
+                }
+
+                if (AttributeDef.isNumericType(type)) {
+                    builder.append(" <> ");
+                    builder.append(value);
+                    break;
+                }
+                //default
+                builder.append(" <> ");
+                builder.append(formatStringForJPQL(value.toString()));
+                break;
+            case GREATER_THAN:
+                builder.append(" > ");
+                builder.append(format(value, type));
+                break;
+            case GREATER_THAN_EQUALS:
+                builder.append(" >= ");
+                builder.append(format(value, type));
+                break;
+            case LESS_THAN:
+                builder.append(" < ");
+                builder.append(format(value, type));
+                break;
+            case LESS_THAN_EQUALS:
+                builder.append(" <= ");
+                builder.append(format(value, type));
+                break;
+
+            case STARTS_WITH:
+                builder.append("LIKE '");
+                builder.append(getValueString(value));
+                builder.append("%'");
+                break;
+            case ENDS_WITH:
+                builder.append("LIKE '%");
+                builder.append(getValueString(value));
+                builder.append("'");
+                break;
+            case CONTAINS:
+                builder.append("LIKE '%");
+                builder.append(getValueString(value));
+                builder.append("%'");
+                break;
+            case DOES_NOT_CONTAIN:
+                builder.append("NOT LIKE '%");
+                builder.append(getValueString(value));
+                builder.append("%'");
+                break;
+            case LIKE:
+                builder.append("LIKE '");
+                builder.append(getValueString(value));
+                builder.append("'");
+                break;
+            case BETWEEN:
+                if (type.equals(DATE_TYPE) || type.equals(TIMESTAMP_TYPE)) {
+                    Date dateFrom =
+                        MyUtils.removeTimeElement((getDateFrom(value)));
+                    Date dateTo = getDateTo(value1);
+                    //exclude time elements in search
+                    dateTo = MyUtils.addOneDay(dateTo);
+                    dateTo = MyUtils.removeTimeElement(dateTo);
+                    builder.append(">= ");
+                    builder.append(formatDateForJPQL(dateFrom));
+                    builder.append(_AND);
+                    //another attribute string
+                    builder.append(buildAttributeExpression(attrName, type));
+                    builder.append(" < ");
+                    builder.append(formatDateForJPQL(dateTo));
+                    break;
+                }
+                if (AttributeDef.isNumericType(type)) {
+                    //empty string for numeric types assumed to be zero
+                    if (value == null || "".equals(value)) {
+                        value = 0;
+                    }
+                    builder.append("BETWEEN ");
+                    builder.append(value);
+                    builder.append(_AND);
+                    builder.append(SPACE);
+                    builder.append(value1);
+                    break;
+                }
+                break;
+            case IN:
+                //... IN ( 'x', 'y', 'z')
+                builder.append("IN ( ");
+                if (value instanceof List) {
+                    for (Object obj : (List)value) {
+                        if (count > 0) {
+                            builder.append(" , ");
+                        }
+                        if (AttributeDef.isNumericType(type)) {
+                            builder.append(obj);
+                        } else {
+                            builder.append(formatStringForJPQL((String)obj));
+                        }
+                        count++;
+                    }
+                } else {
+                    if (AttributeDef.isNumericType(type)) {
+                        builder.append(value);
+                    } else {
+                        builder.append(formatStringForJPQL((String)value));
+                    }
+                }
+                builder.append(CLOSE_BRACKET);
+                break;
+            case NOT_IN:
+                //... NOT IN ( 'x', 'y', 'z')
+                builder.append("NOT IN ( ");
+                if (value instanceof List) {
+                    for (Object obj : (List)value) {
+                        if (count > 0) {
+                            builder.append(" , ");
+                        }
+                        if (AttributeDef.isNumericType(type)) {
+                            builder.append(obj);
+                        } else {
+                            builder.append(formatStringForJPQL((String)obj));
+                        }
+                        count++;
+                    }
+                } else {
+                    if (AttributeDef.isNumericType(type)) {
+                        builder.append(value);
+                    } else {
+                        builder.append(formatStringForJPQL((String)value));
+                    }
+                }
+                builder.append(CLOSE_BRACKET);
+                //include NULL values as well
+                //... OR <attr> IS NULL
+                builder.append(_OR);
+                builder.append(buildAttributeExpression(attrName, type));
+                builder.append(_IS_NULL);
+                break;
+            default:
+                //should not come to this point;
+                System.out.println("----------Check problematic Query.QueryDescriptorImpl.toString()-----------");
+            } //end switch
+            //every criterion should be enclosed in brackets
+            builder.append(CLOSE_BRACKET);
+        } //end for
+        return builder.toString();
     }
 }
