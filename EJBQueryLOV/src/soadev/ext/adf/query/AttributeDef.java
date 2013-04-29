@@ -151,6 +151,18 @@ public class AttributeDef implements Serializable{
         else
             return STRING_OPERATORS;
     }
+    
+    public OperatorDef getDefaultOperator(){
+        String typeName = _type.getName();
+        if (isNumericType(typeName))
+            return OperatorDef.EQUALS;
+        else if (isDateType(typeName))
+            return OperatorDef.BETWEEN;
+        else if (typeName.equals(BOOLEAN_TYPE))
+            return OperatorDef.EQUALS;
+        else
+            return OperatorDef.CONTAINS;
+    }
 
     public Class getType() {
         return _type;
