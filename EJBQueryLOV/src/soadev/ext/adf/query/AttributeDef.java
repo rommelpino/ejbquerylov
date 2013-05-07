@@ -104,6 +104,15 @@ public class AttributeDef implements Serializable{
     // Operators for the Boolean dataType
     private static List<OperatorDef> BOOLEAN_OPERATOR =
         new ArrayList<OperatorDef>();
+
+    public AttributeDef(String name,  Class type,
+                        String format, String componentType) {
+        super();
+        this._name = name;
+        this._componentType = componentType;
+        this._type = type;
+        this._format = format;
+    }
     static {
         BOOLEAN_OPERATOR.add(OperatorDef.NO_OPERATOR);
         BOOLEAN_OPERATOR.add(OperatorDef.EQUALS);
@@ -276,7 +285,7 @@ public class AttributeDef implements Serializable{
   public String getPropertiesBundle() {
       return _propertiesBundle;
   }
-    
+      
     public static boolean isNumericType(String type){
         return type.equals(NUMBER_TYPE)||type.equals(INTEGER_TYPE)||type.equals(LONG_TYPE)||type.equals(DOUBLE_TYPE)||type.equals(BIG_DECIMAL_TYPE);
     }

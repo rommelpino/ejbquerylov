@@ -113,6 +113,11 @@
             <url n="sourceOwnerURL" path="../UIShell_inAction.jws"/>
             <url n="sourceURL" path="../uiShellModel/Model.jpr"/>
          </hash>
+         <hash>
+            <value n="class" v="oracle.jdeveloper.library.ProjectLibrary"/>
+            <url n="sourceOwnerURL" path="../UIShell_EJBQueryLOV.jws"/>
+            <url n="sourceURL" path="../PaginationComponent/PaginationComponent.jpr"/>
+         </hash>
       </list>
    </hash>
    <hash n="oracle.ide.model.ResourcePaths">
@@ -314,10 +319,6 @@
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="ADF Library"/>
-            <value n="isJDK" v="false"/>
-         </hash>
-         <hash>
             <value n="id" v="Resource Bundle Variable Resolver"/>
             <value n="isJDK" v="false"/>
          </hash>
@@ -327,6 +328,10 @@
          </hash>
          <hash>
             <value n="id" v="EJBQueryLOV.jar"/>
+            <value n="isJDK" v="false"/>
+         </hash>
+         <hash>
+            <value n="id" v="ADF Library"/>
             <value n="isJDK" v="false"/>
          </hash>
       </list>
@@ -345,14 +350,6 @@
                </list>
                <value n="description" v="Library2"/>
                <value n="id" v="Library2"/>
-            </hash>
-            <hash>
-               <list n="classPath">
-                  <url path="../../../../deploy/adflibSoadevPaginationComponent.jar" jar-entry=""/>
-               </list>
-               <value n="deployedByDefault" v="true"/>
-               <value n="description" v="ADF Library"/>
-               <value n="id" v="ADF Library"/>
             </hash>
             <hash>
                <list n="classPath">
@@ -378,6 +375,22 @@
                <value n="description" v="EJBQueryLOV.jar"/>
                <value n="id" v="EJBQueryLOV.jar"/>
                <value n="locked" v="true"/>
+            </hash>
+            <hash>
+               <list n="classPath">
+                  <url path="../../../../deploy/adflibSoadevPaginationComponent.jar" jar-entry=""/>
+                  <url path="../../../../deploy/adflibRemoteTaskFlowAdapter.jar" jar-entry=""/>
+               </list>
+               <value n="deployedByDefault" v="true"/>
+               <value n="description" v="ADF Library"/>
+               <value n="id" v="ADF Library"/>
+            </hash>
+            <hash>
+               <list n="classPath">
+                  <url path="../../../../deploy/adflibSoadevPaginationComponent.jar" jar-entry=""/>
+               </list>
+               <value n="description" v="Library4"/>
+               <value n="id" v="Library4"/>
             </hash>
          </list>
       </hash>
@@ -495,10 +508,6 @@
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="ADF Library"/>
-            <value n="isJDK" v="false"/>
-         </hash>
-         <hash>
             <value n="id" v="Resource Bundle Variable Resolver"/>
             <value n="isJDK" v="false"/>
          </hash>
@@ -508,6 +517,10 @@
          </hash>
          <hash>
             <value n="id" v="EJBQueryLOV.jar"/>
+            <value n="isJDK" v="false"/>
+         </hash>
+         <hash>
+            <value n="id" v="ADF Library"/>
             <value n="isJDK" v="false"/>
          </hash>
       </list>

@@ -41,6 +41,20 @@ public class SearchFieldDef implements Cloneable, Serializable {
 
     }
 
+    public SearchFieldDef(String attrName,
+                          ConjunctionCriterion.Conjunction beforeConjunction,
+                          OperatorDef operator, boolean[] hasDependentFields,
+        List values, boolean isRemovable, boolean isMultiSelect) {
+        super();
+        this._attrName = attrName;
+        this._beforeConjunction = beforeConjunction;
+        this._operator = operator;
+        this._hasDependentFields = hasDependentFields;
+        this._values = values;
+        this._isRemovable = isRemovable;
+        this._isMultiSelect = isMultiSelect;
+    }
+
 
     public SearchFieldDef copy() {
         SearchFieldDef copy = new SearchFieldDef();

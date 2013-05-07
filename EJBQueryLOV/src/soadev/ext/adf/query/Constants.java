@@ -22,7 +22,7 @@ public class Constants {
     public static final String LONG_TYPE = "java.lang.Long";
     public static final String DOUBLE_TYPE = "java.lang.Double";
     public static final String NUMBER_TYPE = "java.lang.Number";
-    public static final String BIG_DECIMAL_TYPE = "java.lang.BigDecimal";
+    public static final String BIG_DECIMAL_TYPE = "java.math.BigDecimal";
     public static final String STRING_TYPE = "java.lang.String";
     public static final String BOOLEAN_TYPE = "java.lang.Boolean";
 

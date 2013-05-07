@@ -23,8 +23,8 @@ public enum OperatorDef {
     ENDS_WITH("Ends With"),
     IN("In"),
     NOT_IN("Not In");
-    
-    
+
+
     private String _label;
 
     OperatorDef(String label) {
@@ -34,10 +34,10 @@ public enum OperatorDef {
     public String getLabel() {
         return _label;
     }
-    
-    private int parseIndex(String value){
+
+    private int parseIndex(String value) {
         try {
-             return Integer.parseInt(value);
+            return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
             return -1;
         }
@@ -62,6 +62,15 @@ public enum OperatorDef {
 
     public boolean hasVariableOperands() {
         return (getOperandCount() == -1);
+    }
+
+    public static boolean isStringOperator(OperatorDef operator) {
+        return operator == OperatorDef.EQUALS ||
+            operator == OperatorDef.STARTS_WITH ||
+            operator == OperatorDef.ENDS_WITH ||
+            operator == OperatorDef.CONTAINS ||
+            operator == OperatorDef.DOES_NOT_CONTAIN ||
+            operator == OperatorDef.LIKE;
     }
 
 

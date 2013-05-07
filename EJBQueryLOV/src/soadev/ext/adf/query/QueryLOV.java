@@ -221,11 +221,11 @@ public class QueryLOV implements Subject, Serializable{
     }
 
 
-    private String escape(String value) {
+    private static String escape(String value) {
         return value.replace("'", "''");
     }
 
-    private String getValueString(Object value) {
+    private static String getValueString(Object value) {
         return escape(value.toString()).toUpperCase(); //toUpperCase to support Case Insensitive search
     }
 
@@ -312,7 +312,7 @@ public class QueryLOV implements Subject, Serializable{
             QueryDescriptor qd = getCurrentDescriptor();
             //set search criteria if qd is autoExecute
             if (unbox((Boolean)qd.getUIHints().get(QueryDescriptor.UIHINT_AUTO_EXECUTE))) {
-                _searchCriteria = qd.toString();
+                _searchCriteria = process(qd.getConjunctionCriterion());
             }
             notifyObservers();
         }
@@ -965,7 +965,7 @@ public class QueryLOV implements Subject, Serializable{
         }
 
         public void performQuery(QueryDescriptor qd) {
-            setSearchCriteria(qd.toString());
+            setSearchCriteria(process(qd.getConjunctionCriterion()));
             prepare();
         }
 

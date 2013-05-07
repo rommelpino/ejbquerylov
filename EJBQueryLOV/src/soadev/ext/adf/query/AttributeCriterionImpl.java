@@ -7,6 +7,7 @@ import java.util.Map;
 
 import oracle.adf.view.rich.model.AttributeCriterion;
 import oracle.adf.view.rich.model.AttributeDescriptor;
+import oracle.adf.view.rich.model.ConjunctionCriterion;
 import oracle.adf.view.rich.model.ListOfValuesModel;
 
 import static soadev.ext.adf.query.Constants.DATE_TYPE;
@@ -19,11 +20,19 @@ public class AttributeCriterionImpl extends AttributeCriterion {
     private List _values;
     private boolean _removable;
     private AttributeDescriptor _attrDescriptor;
+    private ConjunctionCriterion.Conjunction _beforeConjunction;
 
 
     public AttributeCriterionImpl(AttributeDef attributeDef,
                                   OperatorDef operatorDef, List values,
                                   boolean removable) {
+        this(attributeDef, null, operatorDef, values, removable);
+    }
+    
+    public AttributeCriterionImpl(AttributeDef attributeDef, ConjunctionCriterion.Conjunction beforeConjunction,
+                                  OperatorDef operatorDef, List values,
+                                  boolean removable) {
+        this._beforeConjunction = beforeConjunction;
         this._attrDef = attributeDef;
         this._values = values;
         this._removable = removable;
@@ -31,6 +40,7 @@ public class AttributeCriterionImpl extends AttributeCriterion {
         this._operator =
                 ((ColumnDescriptorImpl)_attrDescriptor).getOperator(operatorDef);
     }
+
 
     public AttributeDescriptor getAttribute() {
         return _attrDescriptor;
@@ -136,5 +146,18 @@ public class AttributeCriterionImpl extends AttributeCriterion {
             return AttributeDescriptor.ComponentType.inputDate;
         }
         return AttributeDescriptor.ComponentType.inputText;
+    }
+
+    public void setBeforeConjunction(ConjunctionCriterion.Conjunction _beforeConjunction) {
+        this._beforeConjunction = _beforeConjunction;
+    }
+
+    public ConjunctionCriterion.Conjunction getBeforeConjunction() {
+        return _beforeConjunction;
+    }
+
+
+    public AttributeDef getAttributeDef() {
+        return _attrDef;
     }
 }

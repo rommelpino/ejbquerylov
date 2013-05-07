@@ -1,9 +1,17 @@
 package soadev.ext.adf.query;
 
+import java.io.StringWriter;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oracle.adf.view.rich.model.AttributeCriterion;
 import oracle.adf.view.rich.model.ConjunctionCriterion;
@@ -61,7 +69,7 @@ public class FilterableQueryDescriptorImpl extends FilterableQueryDescriptor {
         return ssd;
     }
 
-    private AttributeDef getAttributeDescriptor(String attrName) {
+    public AttributeDef getAttributeDescriptor(String attrName) {
         if (_attributes != null)
             return _attributes.get(attrName);
 
@@ -182,4 +190,182 @@ public class FilterableQueryDescriptorImpl extends FilterableQueryDescriptor {
         _hiddenCriterions.remove(criterion);
     }
 
+
+    private List<AttributeCriterion> _parseCriteria(String key, String value) {
+        List<AttributeCriterion> criteriaItems = null;
+        value = value.trim();
+        int charCount = value.length();
+        if (charCount < 1) {
+            return criteriaItems;
+        }
+        criteriaItems = new ArrayList<AttributeCriterion>();
+        Pattern pattern1 = Pattern.compile("(?i)\\band\\b"), pattern2;
+        Matcher m = pattern1.matcher(value);
+        boolean andMatches = m.find(), orMatches = false;
+
+        if (!andMatches) {
+            pattern2 = Pattern.compile("(?i)\\bor\\b");
+            m = pattern2.matcher(value);
+            orMatches = m.find();
+        }
+
+        if (andMatches || orMatches) {
+            String[] tokenValues = value.split(" ");
+            List<String> bufferedValues = new ArrayList<String>();
+            ConjunctionCriterion.Conjunction lastConjunction =
+                ConjunctionCriterion.Conjunction.AND;
+            for (int i = 0; i < tokenValues.length; i++) {
+                String tokenValue = tokenValues[i];
+                if (tokenValue.equalsIgnoreCase("AND")) {
+                    AttributeCriterion vcItem =
+                        _parseAttributeCriterion(key, _joinStrings(' ',
+                                                                   bufferedValues),
+                                                 lastConjunction);
+                    if (vcItem != null)
+                        criteriaItems.add(vcItem);
+                    lastConjunction = ConjunctionCriterion.Conjunction.AND;
+                    bufferedValues.clear();
+                } else if (tokenValue.equalsIgnoreCase("OR")) {
+                    AttributeCriterion vcItem =
+                        _parseAttributeCriterion(key, _joinStrings(' ',
+                                                                   bufferedValues),
+                                                 lastConjunction);
+                    if (vcItem != null)
+                        criteriaItems.add(vcItem);
+                    lastConjunction = ConjunctionCriterion.Conjunction.OR;
+                    bufferedValues.clear();
+                } else {
+                    bufferedValues.add(tokenValue);
+                }
+            }
+            if (bufferedValues.size() > 0) {
+                AttributeCriterion vcItem =
+                    _parseAttributeCriterion(key, _joinStrings(' ',
+                                                               bufferedValues),
+                                             lastConjunction);
+                if (vcItem != null)
+                    criteriaItems.add(vcItem);
+            }
+        } else {
+            AttributeCriterion vcItem =
+                _parseAttributeCriterion(key, value, ConjunctionCriterion.Conjunction.AND);
+            if (vcItem != null)
+                criteriaItems.add(vcItem);
+
+        }
+        return criteriaItems;
+    }
+
+    private static String _joinStrings(char token,
+                                       List<String> bufferedValues) {
+        StringWriter sb = new StringWriter();
+        int i = 0, count = bufferedValues.size();
+        for (String string : bufferedValues) {
+            sb.append(string);
+            if (i < count - 1)
+                sb.append(token);
+            i++;
+        }
+
+        return (sb.toString());
+    }
+
+    // QBE related methods
+
+    public ConjunctionCriterion getFilterConjunctionCriterion() {
+        Map<String, Object> filterCriteria = getFilterCriteria();
+
+        List<Criterion> criterionList = new ArrayList<Criterion>();
+        if (filterCriteria != null && !filterCriteria.isEmpty()) {
+            Set<String> keySet = filterCriteria.keySet();
+            for (String key : keySet) {
+                Object filterValue = filterCriteria.get(key);
+                if (filterValue == null) {
+                    continue;
+                }
+                String strValue = filterValue.toString();
+                List<AttributeCriterion> items = _parseCriteria(key, strValue);
+                if (items != null) {
+                    criterionList.addAll(items);
+                }
+            }
+        }
+        ConjunctionCriterion conjunctionCriterion =
+            new ConjunctionCriterionImpl(ConjunctionCriterion.Conjunction.AND,
+                                         criterionList);
+        return conjunctionCriterion;
+    }
+
+    private AttributeCriterion _parseAttributeCriterion(String key,
+                                                        String value,
+                                                        ConjunctionCriterion.Conjunction conjunction) {
+        value = value.trim();
+        int charCount = value.length();
+        OperatorDef operator = null;
+        if (charCount > 0) {
+            char firstChar = value.charAt(0);
+            if (firstChar == '>') {
+                char secondChar = charCount > 1 ? value.charAt(1) : '\0';
+                if (secondChar == '=') {
+                    if (charCount > 2) {
+                        operator = OperatorDef.GREATER_THAN_EQUALS;
+                        value = value.substring(2);
+                    }
+                } else if (charCount > 1) {
+                    operator = OperatorDef.GREATER_THAN;
+                    value = value.substring(1);
+                }
+            } else if (firstChar == '<') {
+                char secondChar = charCount > 1 ? value.charAt(1) : '\0';
+                if (secondChar == '=') {
+                    if (charCount > 2) {
+                        operator = OperatorDef.LESS_THAN_EQUALS;
+                        value = value.substring(2);
+                    }
+                } else if (charCount > 1) {
+                    operator = OperatorDef.LESS_THAN;
+                    value = value.substring(1);
+                }
+            } else if (firstChar == '*') {
+                char lastChar = value.charAt(charCount - 1);
+                if (charCount > 1 && lastChar == '*') {
+                    operator = OperatorDef.CONTAINS;
+                    value = value.substring(1, charCount - 1);
+                } else if (charCount > 1) {
+                    operator = OperatorDef.ENDS_WITH;
+                    value = value.substring(1);
+                }
+            } else if (firstChar == '=') {
+                operator = OperatorDef.EQUALS;
+                if (charCount > 1) {
+                    value = value.substring(1);
+                }
+            } else {
+                char lastChar = value.charAt(charCount - 1);
+                if (lastChar == '*') {
+                    if (charCount > 1) {
+                        // TODO: Cannot assume operator to be STARTS_WITH as it's only supported on String
+                        // type attributes and if user enter * on a Number attribute, a NPE is thrown in
+                        // getSqlString() as the operator never gets stored
+                        operator = OperatorDef.STARTS_WITH;
+                        value = value.substring(0, charCount - 1);
+                    }
+                } else {
+                    operator = OperatorDef.NO_OPERATOR;
+                }
+            }
+        }
+
+        if (operator != null) {
+            List list = new ArrayList();
+            list.add(value);
+            AttributeCriterionImpl criterion =
+                new AttributeCriterionImpl(getAttributeDescriptor(key),
+                                           conjunction, operator, list, false);
+            return criterion;
+        } else {
+            return null;
+        }
+
+    }
 }
