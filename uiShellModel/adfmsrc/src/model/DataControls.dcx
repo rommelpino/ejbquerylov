@@ -25,4 +25,29 @@
                       xmlns="http://xmlns.oracle.com/adfm/adapter/ejb"/>
     </Source>
   </AdapterDataControl>
+  <AdapterDataControl id="HRFacade"
+                      FactoryClass="oracle.adf.model.adapter.DataControlFactoryImpl"
+                      ImplDef="oracle.adfinternal.model.adapter.ejb.EjbDefinition"
+                      SupportsTransactions="false" SupportsSortCollection="true"
+                      SupportsResetState="false" SupportsRangesize="false"
+                      SupportsFindMode="false" SupportsUpdates="true"
+                      Definition="src.service.HRFacade"
+                      BeanClass="src.service.HRFacade"
+                      xmlns="http://xmlns.oracle.com/adfm/datacontrol">
+    <CreatableTypes>
+      <TypeInfo FullName="src.model.Job"/>
+      <TypeInfo FullName="src.model.Department"/>
+      <TypeInfo FullName="src.model.Employee"/>
+    </CreatableTypes>
+    <Source>
+      <ejb-definition ejb-version="3.0" ejb-name="HRFacade" ejb-type="Session"
+                      ejb-business-interface="src.service.HRFacade"
+                      ejb-interface-type="remote"
+                      jndi-name="UIShell-uiShellModel-HRFacade#src.service.HRFacade"
+                      provider-url="t3://127.0.0.1:7101"
+                      initial-context-factory="weblogic.jndi.WLInitialContextFactory"
+                      DataControlHandler="oracle.adf.model.adapter.bean.jpa.JPQLDataFilterHandler"
+                      xmlns="http://xmlns.oracle.com/adfm/adapter/ejb"/>
+    </Source>
+  </AdapterDataControl>
 </DataControlConfigs>
