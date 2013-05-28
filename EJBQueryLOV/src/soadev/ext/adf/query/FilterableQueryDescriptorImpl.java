@@ -272,10 +272,9 @@ public class FilterableQueryDescriptorImpl extends FilterableQueryDescriptor {
 
     // QBE related methods
 
-    public ConjunctionCriterion getFilterConjunctionCriterion() {
+    public List<AttributeCriterion> parseFilterCriteria() {
         Map<String, Object> filterCriteria = getFilterCriteria();
-
-        List<Criterion> criterionList = new ArrayList<Criterion>();
+        List<AttributeCriterion> criterionList = new ArrayList<AttributeCriterion>();
         if (filterCriteria != null && !filterCriteria.isEmpty()) {
             Set<String> keySet = filterCriteria.keySet();
             for (String key : keySet) {
@@ -290,10 +289,7 @@ public class FilterableQueryDescriptorImpl extends FilterableQueryDescriptor {
                 }
             }
         }
-        ConjunctionCriterion conjunctionCriterion =
-            new ConjunctionCriterionImpl(ConjunctionCriterion.Conjunction.AND,
-                                         criterionList);
-        return conjunctionCriterion;
+        return criterionList;
     }
 
     private AttributeCriterion _parseAttributeCriterion(String key,
