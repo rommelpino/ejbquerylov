@@ -1267,6 +1267,7 @@ public class QueryLOV implements Subject, Serializable {
             attrCriterion.getAttribute().getType().getCanonicalName();
         ColumnDescriptorImpl descriptor =
             (ColumnDescriptorImpl)attrCriterion.getAttribute();
+        
         String attrName = descriptor.getName();
         //no before conjuction for the first criteria
         builder.append(SPACE);

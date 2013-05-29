@@ -355,8 +355,12 @@ public class FilterableQueryDescriptorImpl extends FilterableQueryDescriptor {
         if (operator != null) {
             List list = new ArrayList();
             list.add(value);
+            AttributeDef attr = getAttributeDescriptor(key);
+            if(operator == OperatorDef.NO_OPERATOR){
+                operator = attr.getDefaultOperator();
+            }
             AttributeCriterionImpl criterion =
-                new AttributeCriterionImpl(getAttributeDescriptor(key),
+                new AttributeCriterionImpl(attr,
                                            conjunction, operator, list, false);
             return criterion;
         } else {
